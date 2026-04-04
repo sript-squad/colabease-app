@@ -78,7 +78,11 @@ const Projects = () => {
     setOpenNewProject(false);
   };
 
-  const handleCreateProject = (projectData: { name: string; description?: string; ownerId: string }) => {
+  const handleCreateProject = (projectData: {
+    name: string;
+    description?: string;
+    ownerId: string;
+  }) => {
     console.log("New project data:", projectData);
     handleCloseNewProject();
     // TODO: Integrate with backend API when ready
@@ -97,7 +101,11 @@ const Projects = () => {
       >
         <Typography variant="h4">Projects</Typography>
         <Box>
-          <Button variant="contained" sx={{ mr: 2 }} onClick={handleOpenNewProject}>
+          <Button
+            variant="contained"
+            sx={{ mr: 2 }}
+            onClick={handleOpenNewProject}
+          >
             + Create Project
           </Button>
           <TextField size="small" placeholder="Search..." sx={{ mr: 2 }} />
