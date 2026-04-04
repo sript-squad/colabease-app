@@ -5,7 +5,6 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
-  CircularProgress,
 } from "@mui/material";
 import { useState } from "react";
 
@@ -19,10 +18,9 @@ interface NewProjectProps {
   open: boolean;
   onClose: () => void;
   onCreate: (data: CreateProjectData) => void;
-  isLoading?: boolean;
 }
 
-const NewProject = ({ open, onClose, onCreate, isLoading = false }: NewProjectProps) => {
+const NewProject = ({ open, onClose, onCreate }: NewProjectProps) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
@@ -31,13 +29,13 @@ const NewProject = ({ open, onClose, onCreate, isLoading = false }: NewProjectPr
       alert("Project name is required");
       return;
     }
-    
+
     const projectData: CreateProjectData = {
       name: name.trim(),
       description: description.trim() || undefined,
       ownerId: "default-user", // This should come from user context/auth
     };
-    
+
     onCreate(projectData);
     setName("");
     setDescription("");
@@ -56,7 +54,6 @@ const NewProject = ({ open, onClose, onCreate, isLoading = false }: NewProjectPr
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          disabled={isLoading}
         />
         <TextField
           margin="dense"
@@ -67,20 +64,12 @@ const NewProject = ({ open, onClose, onCreate, isLoading = false }: NewProjectPr
           rows={4}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          disabled={isLoading}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={isLoading}>
-          Cancel
-        </Button>
-        <Button
-          onClick={handleCreate}
-          variant="contained"
-          disabled={isLoading}
-          startIcon={isLoading ? <CircularProgress size={20} /> : undefined}
-        >
-          {isLoading ? "Creating..." : "Create"}
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleCreate} variant="contained">
+          Create
         </Button>
       </DialogActions>
     </Dialog>

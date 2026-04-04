@@ -10,7 +10,6 @@ import {
   ListItemAvatar,
   ListItemText,
   Button,
-  CircularProgress,
 } from "@mui/material";
 import {
   Assignment,
@@ -74,7 +73,6 @@ const aiSuggestions = [
 
 const Dashboard = () => {
   const [openNewProject, setOpenNewProject] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleOpenNewProject = () => {
     setOpenNewProject(true);
@@ -84,36 +82,17 @@ const Dashboard = () => {
     setOpenNewProject(false);
   };
 
-  const handleCreateProject = async (sourceData: {
+  const handleCreateProject = (sourceData: {
     name: string;
     description?: string;
     ownerId: string;
   }) => {
-    setIsLoading(true);
-    try {
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-      const response = await fetch(`${API_URL}/projects`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(sourceData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create project");
-      }
-
-      const newProject = await response.json();
-      console.log("New project created:", newProject);
-      alert("Project created successfully!");
-      // Optionally refresh the projects list here
-    } catch (error) {
-      console.error("Error creating project:", error);
-      alert("Failed to create project. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    // Function designed to match backend CreateProjectDto structure
+    // POST /projects endpoint expects:
+    // { name: string, description?: string, ownerId: string }
+    console.log("Create project with data:", sourceData);
+    console.log("This would POST to: /projects");
+    alert("Project creation function designed for backend integration");
   };
 
   return (
@@ -135,7 +114,6 @@ const Dashboard = () => {
         open={openNewProject}
         onClose={handleCloseNewProject}
         onCreate={handleCreateProject}
-        isLoading={isLoading}
       />
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
