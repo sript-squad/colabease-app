@@ -10,6 +10,7 @@ import {
   ListItemAvatar,
   ListItemText,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import {
   Assignment,
@@ -17,6 +18,8 @@ import {
   People,
   HourglassEmpty,
 } from "@mui/icons-material";
+import { useState } from "react";
+import NewProject from "../components/NewProject";
 
 const projects = [
   { name: "Website Redesign", status: "On Track", members: 5, progress: 75 },
@@ -70,6 +73,49 @@ const aiSuggestions = [
 ];
 
 const Dashboard = () => {
+  const [openNewProject, setOpenNewProject] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleOpenNewProject = () => {
+    setOpenNewProject(true);
+  };
+
+  const handleCloseNewProject = () => {
+    setOpenNewProject(false);
+  };
+
+  const handleCreateProject = async (sourceData: {
+    name: string;
+    description?: string;
+    ownerId: string;
+  }) => {
+    setIsLoading(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const response = await fetch(`${API_URL}/projects`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(sourceData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create project");
+      }
+
+      const newProject = await response.json();
+      console.log("New project created:", newProject);
+      alert("Project created successfully!");
+      // Optionally refresh the projects list here
+    } catch (error) {
+      console.error("Error creating project:", error);
+      alert("Failed to create project. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Box>
       <Box
@@ -81,8 +127,16 @@ const Dashboard = () => {
         }}
       >
         <Typography variant="h4">Welcome back! 👋</Typography>
-        <Button variant="contained">+ New Project</Button>
+        <Button variant="contained" onClick={handleOpenNewProject}>
+          + New Project
+        </Button>
       </Box>
+      <NewProject
+        open={openNewProject}
+        onClose={handleCloseNewProject}
+        onCreate={handleCreateProject}
+        isLoading={isLoading}
+      />
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
           <Paper sx={{ p: 2 }}>
