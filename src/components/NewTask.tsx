@@ -77,17 +77,18 @@ const NewTask = ({ open, onClose, onCreate }: NewTaskProps) => {
       fullWidth
       PaperProps={{
         sx: {
-          backgroundColor: "var(--bg-color)",
-          color: "var(--text-color)",
+          backgroundColor: "var(--bg-color-light)",
+          color: "var(--text-color-light)",
         },
       }}
     >
       <DialogTitle
         sx={{
-          backgroundColor: "var(--primary-color)",
-          color: "var(--text-color)",
+          backgroundColor: "#f8f9fa",
+          color: "var(--text-color-light)",
           fontWeight: 600,
           fontSize: "1.25rem",
+          borderBottom: "1px solid #e9ecef",
         }}
       >
         Create New Task
@@ -104,16 +105,21 @@ const NewTask = ({ open, onClose, onCreate }: NewTaskProps) => {
             required
             sx={{
               "& .MuiOutlinedInput-root": {
-                color: "var(--text-color)",
+                color: "var(--text-color-light)",
+                backgroundColor: "#ffffff",
                 "& fieldset": {
-                  borderColor: "var(--secondary-color)",
+                  borderColor: "#dee2e6",
                 },
                 "&:hover fieldset": {
-                  borderColor: "var(--accent-color)",
+                  borderColor: "#adb5bd",
                 },
               },
               "& .MuiInputBase-input::placeholder": {
                 opacity: 0.7,
+                color: "#6c757d",
+              },
+              "& .MuiInputLabel-root": {
+                color: "#6c757d",
               },
             }}
           />
@@ -127,13 +133,17 @@ const NewTask = ({ open, onClose, onCreate }: NewTaskProps) => {
             onChange={(e) => setDescription(e.target.value)}
             sx={{
               "& .MuiOutlinedInput-root": {
-                color: "var(--text-color)",
+                color: "var(--text-color-light)",
+                backgroundColor: "#ffffff",
                 "& fieldset": {
-                  borderColor: "var(--secondary-color)",
+                  borderColor: "#dee2e6",
                 },
                 "&:hover fieldset": {
-                  borderColor: "var(--accent-color)",
+                  borderColor: "#adb5bd",
                 },
+              },
+              "& .MuiInputLabel-root": {
+                color: "#6c757d",
               },
             }}
           />
@@ -146,28 +156,39 @@ const NewTask = ({ open, onClose, onCreate }: NewTaskProps) => {
             required
             sx={{
               "& .MuiOutlinedInput-root": {
-                color: "var(--text-color)",
+                color: "var(--text-color-light)",
+                backgroundColor: "#ffffff",
                 "& fieldset": {
-                  borderColor: "var(--secondary-color)",
+                  borderColor: "#dee2e6",
                 },
                 "&:hover fieldset": {
-                  borderColor: "var(--accent-color)",
+                  borderColor: "#adb5bd",
                 },
+              },
+              "& .MuiInputLabel-root": {
+                color: "#6c757d",
               },
             }}
           />
           <FormControl fullWidth>
-            <InputLabel sx={{ color: "var(--text-color)" }}>Status</InputLabel>
+            <InputLabel
+              sx={{
+                color: "#6c757d",
+              }}
+            >
+              Status
+            </InputLabel>
             <Select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               sx={{
-                color: "var(--text-color)",
+                color: "var(--text-color-light)",
+                backgroundColor: "#ffffff",
                 "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "var(--secondary-color)",
+                  borderColor: "#dee2e6",
                 },
                 "&:hover .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "var(--accent-color)",
+                  borderColor: "#adb5bd",
                 },
               }}
             >
@@ -177,19 +198,24 @@ const NewTask = ({ open, onClose, onCreate }: NewTaskProps) => {
             </Select>
           </FormControl>
           <FormControl fullWidth>
-            <InputLabel sx={{ color: "var(--text-color)" }}>
+            <InputLabel
+              sx={{
+                color: "#6c757d",
+              }}
+            >
               Priority
             </InputLabel>
             <Select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
               sx={{
-                color: "var(--text-color)",
+                color: "var(--text-color-light)",
+                backgroundColor: "#ffffff",
                 "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "var(--secondary-color)",
+                  borderColor: "#dee2e6",
                 },
                 "&:hover .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "var(--accent-color)",
+                  borderColor: "#adb5bd",
                 },
               }}
             >
@@ -206,13 +232,17 @@ const NewTask = ({ open, onClose, onCreate }: NewTaskProps) => {
             onChange={(e) => setAssignedTo(e.target.value)}
             sx={{
               "& .MuiOutlinedInput-root": {
-                color: "var(--text-color)",
+                color: "var(--text-color-light)",
+                backgroundColor: "#ffffff",
                 "& fieldset": {
-                  borderColor: "var(--secondary-color)",
+                  borderColor: "#dee2e6",
                 },
                 "&:hover fieldset": {
-                  borderColor: "var(--accent-color)",
+                  borderColor: "#adb5bd",
                 },
+              },
+              "& .MuiInputLabel-root": {
+                color: "#6c757d",
               },
             }}
           />
@@ -227,26 +257,31 @@ const NewTask = ({ open, onClose, onCreate }: NewTaskProps) => {
             }}
             sx={{
               "& .MuiOutlinedInput-root": {
-                color: "var(--text-color)",
+                color: "var(--text-color-light)",
+                backgroundColor: "#ffffff",
                 "& fieldset": {
-                  borderColor: "var(--secondary-color)",
+                  borderColor: "#dee2e6",
                 },
                 "&:hover fieldset": {
-                  borderColor: "var(--accent-color)",
+                  borderColor: "#adb5bd",
                 },
+              },
+              "& .MuiInputLabel-root": {
+                color: "#6c757d",
               },
             }}
           />
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: 2, gap: 1 }}>
+      <DialogActions sx={{ p: 2, gap: 1, borderTop: "1px solid #e9ecef" }}>
         <Button
           onClick={onClose}
           sx={{
-            color: "var(--text-color)",
-            borderColor: "var(--secondary-color)",
+            color: "#6c757d",
+            borderColor: "#dee2e6",
             "&:hover": {
-              backgroundColor: "rgba(65, 90, 119, 0.1)",
+              backgroundColor: "#f8f9fa",
+              borderColor: "#adb5bd",
             },
           }}
           variant="outlined"
@@ -257,10 +292,10 @@ const NewTask = ({ open, onClose, onCreate }: NewTaskProps) => {
           onClick={handleCreate}
           variant="contained"
           sx={{
-            backgroundColor: "var(--accent-color)",
-            color: "var(--text-color)",
+            backgroundColor: "#007bff",
+            color: "#ffffff",
             "&:hover": {
-              backgroundColor: "var(--secondary-color)",
+              backgroundColor: "#0056b3",
             },
           }}
         >
