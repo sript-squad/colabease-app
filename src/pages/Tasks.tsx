@@ -27,6 +27,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { FilterList, MoreHoriz } from "@mui/icons-material";
+import NewTask from "../components/NewTask";
 
 const initialTasks = {
   todo: [
@@ -168,12 +169,38 @@ const TaskColumn = ({ id, title, tasks }) => {
 
 const Tasks = () => {
   const [tasks, setTasks] = useState(initialTasks);
+  const [openNewTask, setOpenNewTask] = useState(false);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
+
+  const handleOpenNewTask = () => {
+    setOpenNewTask(true);
+  };
+
+  const handleCloseNewTask = () => {
+    setOpenNewTask(false);
+  };
+
+  const handleCreateTask = (taskData: {
+    title: string;
+    description?: string;
+    projectId: string;
+    status?: string;
+    priority?: string;
+    assignedTo?: string;
+    dueDate?: string;
+  }) => {
+    // Function designed to match backend CreateTaskDto structure
+    // POST /tasks endpoint expects:
+    // { title, description?, projectId, status?, priority?, assignedTo?, dueDate? }
+    console.log("Create task with data:", taskData);
+    console.log("This would POST to: /tasks");
+    alert("Task creation function designed for backend integration");
+  };
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -256,9 +283,16 @@ const Tasks = () => {
           <Button variant="outlined" startIcon={<FilterList />} sx={{ mr: 2 }}>
             Filter
           </Button>
-          <Button variant="contained">+ Add Task</Button>
+          <Button variant="contained" onClick={handleOpenNewTask}>
+            + Add Task
+          </Button>
         </Box>
       </Box>
+      <NewTask
+        open={openNewTask}
+        onClose={handleCloseNewTask}
+        onCreate={handleCreateTask}
+      />
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
