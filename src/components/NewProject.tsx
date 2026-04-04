@@ -23,10 +23,25 @@ interface NewProjectProps {
 const NewProject = ({ open, onClose, onCreate }: NewProjectProps) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [errors, setErrors] = useState<{ name?: string }>({});
+
+  const validateForm = (): boolean => {
+    const newErrors: { name?: string } = {};
+    
+    if (!name.trim()) {
+      newErrors.name = "Project name is required";
+    } else if (name.trim().length < 3) {
+      newErrors.name = "Project name must be at least 3 characters";
+    } else if (name.trim().length > 100) {
+      newErrors.name = "Project name must not exceed 100 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleCreate = () => {
-    if (!name.trim()) {
-      alert("Project name is required");
+    if (!validateForm()) {
       return;
     }
 
@@ -39,12 +54,35 @@ const NewProject = ({ open, onClose, onCreate }: NewProjectProps) => {
     onCreate(projectData);
     setName("");
     setDescription("");
+    setErrors({});
+  };
+
+  const handleClose = () => {
+    setName("");
+    setDescription("");
+    setErrors({});
+    onClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create New Project</DialogTitle>
-      <DialogContent>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth
+      PaperProps={{
+        sx: {
+          backgroundColor: "var(--bg-color-light)"
+        }
+      }}
+    >
+      <DialogTitle
+        sx={{
+          backgroundColor: "#f8f9fa",
+          borderBottom: "1px solid #e9ecef",
+          fontWeight: 600,
+          color: "#212529"
+        }}
+      >
+        Create New Project
+      </DialogTitle>
+      <DialogContent sx={{ mt: 2 }}>
         <TextField
           autoFocus
           margin="dense"
@@ -53,7 +91,32 @@ const NewProject = ({ open, onClose, onCreate }: NewProjectProps) => {
           fullWidth
           value={name}
           onChange={(e) => setName(e.target.value)}
+          error={!!errors.name}
+          helperText={errors.name}
           required
+          sx={{
+            backgroundColor: "#ffffff",
+            borderRadius: "4px",
+            "& .MuiOutlinedInput-root": {
+              borderColor: "#dee2e6",
+              "&:hover": {
+                borderColor: "#adb5bd",
+              },
+              "&.Mui-focused": {
+                borderColor: "#007bff",
+              }
+            },
+            "& .MuiOutlinedInput-input": {
+              color: "#212529"
+            },
+            "& .MuiInputBase-input::placeholder": {
+              color: "#6c757d",
+              opacity: 0.7
+            },
+            "& .MuiFormLabel-root": {
+              color: "#6c757d"
+            }
+          }}
         />
         <TextField
           margin="dense"
@@ -64,12 +127,64 @@ const NewProject = ({ open, onClose, onCreate }: NewProjectProps) => {
           rows={4}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          sx={{
+            backgroundColor: "#ffffff",
+            borderRadius: "4px",
+            mt: 2,
+            "& .MuiOutlinedInput-root": {
+              borderColor: "#dee2e6",
+              "&:hover": {
+                borderColor: "#adb5bd",
+              },
+              "&.Mui-focused": {
+                borderColor: "#007bff",
+              }
+            },
+            "& .MuiOutlinedInput-input": {
+              color: "#212529"
+            },
+            "& .MuiInputBase-input::placeholder": {
+              color: "#6c757d",
+              opacity: 0.7
+            },
+            "& .MuiFormLabel-root": {
+              color: "#6c757d"
+            }
+          }}
         />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleCreate} variant="contained">
-          Create
+      <DialogActions
+        sx={{
+          borderTop: "1px solid #e9ecef",
+          padding: "16px"
+        }}
+      >
+        <Button 
+          onClick={handleClose}
+          sx={{
+            color: "#6c757d",
+            border: "1px solid #dee2e6",
+            backgroundColor: "#f8f9fa",
+            "&:hover": {
+              backgroundColor: "#e9ecef",
+              borderColor: "#adb5bd"
+            }
+          }}
+        >
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleCreate} 
+          variant="contained"
+          sx={{
+            backgroundColor: "#007bff",
+            color: "#ffffff",
+            "&:hover": {
+              backgroundColor: "#0056b3"
+            }
+          }}
+        >
+          Create Project
         </Button>
       </DialogActions>
     </Dialog>
