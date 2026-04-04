@@ -14,9 +14,6 @@ const Header = () => {
     >
       <Toolbar>
         <img src={logo} alt="Logo" className="header-logo" />
-        <Typography variant="h6" noWrap>
-          CollabEase
-        </Typography>
       </Toolbar>
     </AppBar>
   );
