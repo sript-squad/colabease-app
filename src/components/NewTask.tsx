@@ -111,7 +111,10 @@ const NewTask = ({ open, onClose, onCreate }: NewTaskProps) => {
         </FormControl>
         <FormControl margin="dense" fullWidth>
           <InputLabel>Priority</InputLabel>
-          <Select value={priority} onChange={(e) => setPriority(e.target.value)}>
+          <Select
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+          >
             <MenuItem value="Low">Low</MenuItem>
             <MenuItem value="Medium">Medium</MenuItem>
             <MenuItem value="High">High</MenuItem>
