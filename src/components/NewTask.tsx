@@ -9,6 +9,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Box,
 } from "@mui/material";
 import { useState } from "react";
 
@@ -69,80 +70,200 @@ const NewTask = ({ open, onClose, onCreate }: NewTaskProps) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create New Task</DialogTitle>
-      <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          label="Task Title"
-          type="text"
-          fullWidth
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <TextField
-          margin="dense"
-          label="Description"
-          type="text"
-          fullWidth
-          multiline
-          rows={3}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <TextField
-          margin="dense"
-          label="Project ID"
-          type="text"
-          fullWidth
-          value={projectId}
-          onChange={(e) => setProjectId(e.target.value)}
-          required
-        />
-        <FormControl margin="dense" fullWidth>
-          <InputLabel>Status</InputLabel>
-          <Select value={status} onChange={(e) => setStatus(e.target.value)}>
-            <MenuItem value="todo">To Do</MenuItem>
-            <MenuItem value="inProgress">In Progress</MenuItem>
-            <MenuItem value="done">Done</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl margin="dense" fullWidth>
-          <InputLabel>Priority</InputLabel>
-          <Select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-          >
-            <MenuItem value="Low">Low</MenuItem>
-            <MenuItem value="Medium">Medium</MenuItem>
-            <MenuItem value="High">High</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          margin="dense"
-          label="Assigned To"
-          type="text"
-          fullWidth
-          value={assignedTo}
-          onChange={(e) => setAssignedTo(e.target.value)}
-        />
-        <TextField
-          margin="dense"
-          label="Due Date"
-          type="date"
-          fullWidth
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          backgroundColor: "var(--bg-color)",
+          color: "var(--text-color)",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          backgroundColor: "var(--primary-color)",
+          color: "var(--text-color)",
+          fontWeight: 600,
+          fontSize: "1.25rem",
+        }}
+      >
+        Create New Task
+      </DialogTitle>
+      <DialogContent sx={{ pt: 3 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <TextField
+            autoFocus
+            label="Task Title"
+            type="text"
+            fullWidth
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                color: "var(--text-color)",
+                "& fieldset": {
+                  borderColor: "var(--secondary-color)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "var(--accent-color)",
+                },
+              },
+              "& .MuiInputBase-input::placeholder": {
+                opacity: 0.7,
+              },
+            }}
+          />
+          <TextField
+            label="Description"
+            type="text"
+            fullWidth
+            multiline
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                color: "var(--text-color)",
+                "& fieldset": {
+                  borderColor: "var(--secondary-color)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "var(--accent-color)",
+                },
+              },
+            }}
+          />
+          <TextField
+            label="Project ID"
+            type="text"
+            fullWidth
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+            required
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                color: "var(--text-color)",
+                "& fieldset": {
+                  borderColor: "var(--secondary-color)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "var(--accent-color)",
+                },
+              },
+            }}
+          />
+          <FormControl fullWidth>
+            <InputLabel sx={{ color: "var(--text-color)" }}>Status</InputLabel>
+            <Select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              sx={{
+                color: "var(--text-color)",
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--secondary-color)",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--accent-color)",
+                },
+              }}
+            >
+              <MenuItem value="todo">To Do</MenuItem>
+              <MenuItem value="inProgress">In Progress</MenuItem>
+              <MenuItem value="done">Done</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel sx={{ color: "var(--text-color)" }}>
+              Priority
+            </InputLabel>
+            <Select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              sx={{
+                color: "var(--text-color)",
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--secondary-color)",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--accent-color)",
+                },
+              }}
+            >
+              <MenuItem value="Low">Low</MenuItem>
+              <MenuItem value="Medium">Medium</MenuItem>
+              <MenuItem value="High">High</MenuItem>
+            </Select>
+          </FormControl>
+          <TextField
+            label="Assigned To"
+            type="text"
+            fullWidth
+            value={assignedTo}
+            onChange={(e) => setAssignedTo(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                color: "var(--text-color)",
+                "& fieldset": {
+                  borderColor: "var(--secondary-color)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "var(--accent-color)",
+                },
+              },
+            }}
+          />
+          <TextField
+            label="Due Date"
+            type="date"
+            fullWidth
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                color: "var(--text-color)",
+                "& fieldset": {
+                  borderColor: "var(--secondary-color)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "var(--accent-color)",
+                },
+              },
+            }}
+          />
+        </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleCreate} variant="contained">
+      <DialogActions sx={{ p: 2, gap: 1 }}>
+        <Button
+          onClick={onClose}
+          sx={{
+            color: "var(--text-color)",
+            borderColor: "var(--secondary-color)",
+            "&:hover": {
+              backgroundColor: "rgba(65, 90, 119, 0.1)",
+            },
+          }}
+          variant="outlined"
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleCreate}
+          variant="contained"
+          sx={{
+            backgroundColor: "var(--accent-color)",
+            color: "var(--text-color)",
+            "&:hover": {
+              backgroundColor: "var(--secondary-color)",
+            },
+          }}
+        >
           Create Task
         </Button>
       </DialogActions>
