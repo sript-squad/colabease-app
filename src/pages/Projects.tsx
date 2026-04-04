@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -13,6 +13,7 @@ import {
   Chip,
 } from "@mui/material";
 import { FilterList } from "@mui/icons-material";
+import NewProject from "../components/NewProject";
 
 const projects = [
   {
@@ -67,6 +68,23 @@ const getStatusChipColor = (status) => {
 };
 
 const Projects = () => {
+  const [openNewProject, setOpenNewProject] = useState(false);
+
+  const handleOpenNewProject = () => {
+    setOpenNewProject(true);
+  };
+
+  const handleCloseNewProject = () => {
+    setOpenNewProject(false);
+  };
+
+  const handleCreateProject = (projectData: { name: string; description?: string; ownerId: string }) => {
+    console.log("New project data:", projectData);
+    handleCloseNewProject();
+    // TODO: Integrate with backend API when ready
+    // POST /projects with projectData
+  };
+
   return (
     <Box>
       <Box
@@ -79,7 +97,7 @@ const Projects = () => {
       >
         <Typography variant="h4">Projects</Typography>
         <Box>
-          <Button variant="contained" sx={{ mr: 2 }}>
+          <Button variant="contained" sx={{ mr: 2 }} onClick={handleOpenNewProject}>
             + Create Project
           </Button>
           <TextField size="small" placeholder="Search..." sx={{ mr: 2 }} />
@@ -142,6 +160,11 @@ const Projects = () => {
           </Grid>
         ))}
       </Grid>
+      <NewProject
+        open={openNewProject}
+        onClose={handleCloseNewProject}
+        onCreate={handleCreateProject}
+      />
     </Box>
   );
 };
