@@ -1,5 +1,6 @@
 import { AppBar, Toolbar, Typography } from "@mui/material";
 import logo from "../assets/logo.png";
+import "./Header.css";
 
 const Header = () => {
   return (
@@ -12,11 +13,10 @@ const Header = () => {
       }}
     >
       <Toolbar>
-        <img
-          src={logo}
-          alt="Logo"
-          style={{ width: "120px", height: "40px", marginRight: "10px" }}
-        />
+        <img src={logo} alt="Logo" className="header-logo" />
+        <Typography variant="h6" noWrap>
+          CollabEase
+        </Typography>
       </Toolbar>
     </AppBar>
   );
