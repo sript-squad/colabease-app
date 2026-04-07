@@ -5,13 +5,13 @@ import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Callback from "./pages/Callback";
 import Dashboard from "./pages/Dashboard";
-import Projects from "./pages/Projects";
 import { Chat, Settings } from "@mui/icons-material";
 import Documents from "./pages/Documents";
 import Files from "./pages/Files";
 import Milestones from "./pages/Milestones";
 import Tasks from "./pages/Tasks";
 import Whiteboard from "./pages/Whiteboard";
+import ProjectsPage from "./components/ProjectsPage"; 
 // ... other imports
 
 function App() {
@@ -34,7 +34,7 @@ function App() {
                   <Toolbar />
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
-                    <Route path="/projects" element={<Projects />} />
+                    <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/tasks" element={<Tasks />} />
                     <Route path="/chat" element={<Chat />} />
                     <Route path="/files" element={<Files />} />
