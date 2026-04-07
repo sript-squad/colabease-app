@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Filter, FolderKanban, Loader2 } from 'lucide-react';
 import { projectService } from '../services/projectService'
 import { Project } from '../types/Project.types';
@@ -16,6 +17,7 @@ const STATUS_FILTERS = [
 ];
 
 export default function ProjectsPage() {
+  const navigate = useNavigate();
   const [projects, setProjects]       = useState<Project[]>([]);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState<string | null>(null);
@@ -120,6 +122,7 @@ export default function ProjectsPage() {
             <ProjectCard
               key={project._id}
               project={project}
+              onClick={(p: Project) => navigate(`/projects/${p._id}`)}
               onEdit={(p: Project) => { setEditProject(p); setShowModal(true); }}
               onDelete={(p: Project) => setDeleteTarget(p)}
             />  
