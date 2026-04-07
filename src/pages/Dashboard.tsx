@@ -10,6 +10,9 @@ import {
   ListItemAvatar,
   ListItemText,
   Button,
+  Skeleton,
+  Alert,
+  Chip,
 } from "@mui/material";
 import {
   Assignment,
@@ -17,26 +20,12 @@ import {
   People,
   HourglassEmpty,
 } from "@mui/icons-material";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import NewProject from "../components/NewProject";
+import { getDashboardStats, getRecentProjects } from "../services/dashboardService";
+import { DashboardStats, DashboardProject } from "../types/Dashboard.types";
 
-const projects = [
-  { name: "Website Redesign", status: "On Track", members: 5, progress: 75 },
-  {
-    name: "Mobile App Launch",
-    status: "In Progress",
-    members: 8,
-    progress: 45,
-  },
-  {
-    name: "Marketing Campaign",
-    status: "Almost Done",
-    members: 4,
-    progress: 90,
-  },
-  { name: "Product Research", status: "Starting", members: 3, progress: 30 },
-];
-
+// ── Demo data (no backend endpoints available yet) ──────────────────
 const recentActivity = [
   {
     user: "Sarah Johnson",
@@ -71,8 +60,61 @@ const aiSuggestions = [
   "Update project timeline for Product Research",
 ];
 
+// ── Stat Card Component ─────────────────────────────────────────────
+interface StatCardProps {
+  title: string;
+  value: number | null;
+  icon: React.ReactNode;
+  loading: boolean;
+}
+
+const StatCard = ({ title, value, icon, loading }: StatCardProps) => (
+  <Grid item xs={12} sm={6} md={3}>
+    <Paper sx={{ p: 2 }}>
+      <Typography variant="h6">{title}</Typography>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        {icon}
+        {loading ? (
+          <Skeleton variant="text" width={60} height={45} />
+        ) : (
+          <Typography variant="h4">{value ?? "—"}</Typography>
+        )}
+      </Box>
+    </Paper>
+  </Grid>
+);
+
+// ── Dashboard Component ─────────────────────────────────────────────
 const Dashboard = () => {
   const [openNewProject, setOpenNewProject] = useState(false);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [projects, setProjects] = useState<DashboardProject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDashboardData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [statsData, projectsData] = await Promise.all([
+        getDashboardStats(),
+        getRecentProjects(4),
+      ]);
+      setStats(statsData);
+      setProjects(projectsData);
+    } catch (err) {
+      console.error("Failed to load dashboard data:", err);
+      setError(
+        "Unable to load dashboard data. Please check that the backend server is running.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const handleOpenNewProject = () => {
     setOpenNewProject(true);
@@ -87,9 +129,6 @@ const Dashboard = () => {
     description?: string;
     ownerId: string;
   }) => {
-    // Function designed to match backend CreateProjectDto structure
-    // POST /projects endpoint expects:
-    // { name: string, description?: string, ownerId: string }
     console.log("Create project with data:", sourceData);
     console.log("This would POST to: /projects");
     alert("Project creation function designed for backend integration");
@@ -115,75 +154,106 @@ const Dashboard = () => {
         onClose={handleCloseNewProject}
         onCreate={handleCreateProject}
       />
+
+      {/* Error banner */}
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 3 }}
+          action={
+            <Button color="inherit" size="small" onClick={fetchDashboardData}>
+              Retry
+            </Button>
+          }
+        >
+          {error}
+        </Alert>
+      )}
+
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6">Active Projects</Typography>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Assignment sx={{ mr: 1 }} />
-              <Typography variant="h4">12</Typography>
-            </Box>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6">Tasks Completed</Typography>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <CheckCircle sx={{ mr: 1 }} />
-              <Typography variant="h4">87</Typography>
-            </Box>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6">Team Members</Typography>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <People sx={{ mr: 1 }} />
-              <Typography variant="h4">24</Typography>
-            </Box>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6">Hours Tracked</Typography>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <HourglassEmpty sx={{ mr: 1 }} />
-              <Typography variant="h4">156</Typography>
-            </Box>
-          </Paper>
-        </Grid>
+        {/* ── Stat Cards ──────────────────────────────────────── */}
+        <StatCard
+          title="Active Projects"
+          value={stats?.activeProjects ?? null}
+          icon={<Assignment sx={{ mr: 1 }} />}
+          loading={loading}
+        />
+        <StatCard
+          title="Tasks Completed"
+          value={stats?.completedTasks ?? null}
+          icon={<CheckCircle sx={{ mr: 1 }} />}
+          loading={loading}
+        />
+        <StatCard
+          title="Team Members"
+          value={stats?.teamMembers ?? null}
+          icon={<People sx={{ mr: 1 }} />}
+          loading={loading}
+        />
+        <StatCard
+          title="Hours Tracked"
+          value={stats?.hoursTracked ?? null}
+          icon={<HourglassEmpty sx={{ mr: 1 }} />}
+          loading={loading}
+        />
+
+        {/* ── Recent Projects (live data) ─────────────────────── */}
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6">Recent Projects</Typography>
-            {projects.map((project) => (
-              <Box key={project.name} sx={{ my: 2 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 1,
-                  }}
-                >
-                  <Typography>{project.name}</Typography>
-                  <Typography variant="caption">{project.status}</Typography>
+            {loading ? (
+              // Loading skeletons
+              Array.from({ length: 4 }).map((_, i) => (
+                <Box key={i} sx={{ my: 2 }}>
+                  <Skeleton variant="text" width="60%" />
+                  <Skeleton variant="rectangular" height={4} sx={{ my: 1 }} />
+                  <Skeleton variant="text" width="30%" />
                 </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={project.progress}
-                />
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="caption">
-                    {project.members} members
-                  </Typography>
-                  <Typography variant="caption">{project.progress}%</Typography>
+              ))
+            ) : projects.length === 0 ? (
+              <Typography sx={{ my: 2, color: "text.secondary" }}>
+                No projects yet. Create your first project to get started!
+              </Typography>
+            ) : (
+              projects.map((project) => (
+                <Box key={project._id} sx={{ my: 2 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      mb: 1,
+                    }}
+                  >
+                    <Typography>{project.name}</Typography>
+                    <Typography variant="caption">{project.status}</Typography>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={project.progress}
+                  />
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <Typography variant="caption">
+                      {project.memberCount} members
+                    </Typography>
+                    <Typography variant="caption">
+                      {project.progress}%
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            ))}
+              ))
+            )}
           </Paper>
         </Grid>
+
+        {/* ── AI Suggestions (demo data) ──────────────────────── */}
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2, backgroundColor: "#e3f2fd" }}>
-            <Typography variant="h6">AI Suggestions</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography variant="h6">AI Suggestions</Typography>
+              <Chip label="Demo" size="small" color="info" variant="outlined" />
+            </Box>
             <List>
               {aiSuggestions.map((suggestion, index) => (
                 <ListItem key={index}>
@@ -193,9 +263,14 @@ const Dashboard = () => {
             </List>
           </Paper>
         </Grid>
+
+        {/* ── Recent Activity (demo data) ─────────────────────── */}
         <Grid item xs={12}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="h6">Recent Activity</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography variant="h6">Recent Activity</Typography>
+              <Chip label="Demo" size="small" color="info" variant="outlined" />
+            </Box>
             <List>
               {recentActivity.map((activity) => (
                 <ListItem key={activity.user}>
