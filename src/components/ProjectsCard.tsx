@@ -5,6 +5,7 @@ interface ProjectCardProps {
   project: Project;
   onEdit:   (project: Project) => void;
   onDelete: (project: Project) => void;
+  onClick?: (project: Project) => void;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
@@ -22,13 +23,16 @@ function formatDate(date?: string) {
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
+export default function ProjectCard({ project, onEdit, onDelete, onClick }: ProjectCardProps) {
   const status     = STATUS_CONFIG[project.status] ?? STATUS_CONFIG.planning;
   const initials   = project.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
   const avatarColor = AVATAR_COLORS[project.name.charCodeAt(0) % AVATAR_COLORS.length];
 
   return (
-    <div style={styles.card}>
+    <div 
+      style={{ ...styles.card, cursor: onClick ? 'pointer' : 'default', transition: 'box-shadow 0.2s', '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.1)' } } as React.CSSProperties} 
+      onClick={() => onClick && onClick(project)}
+    >
       <div style={styles.cardHeader}>
         <div style={{ ...styles.avatar, background: avatarColor }}>{initials}</div>
         <span style={{ ...styles.statusBadge, background: status.bg, color: status.color }}>
@@ -54,8 +58,8 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
       <div style={styles.divider} />
 
       <div style={styles.actions}>
-        <button style={styles.editBtn}   onClick={() => onEdit(project)}><Pencil size={13} /> Edit</button>
-        <button style={styles.deleteBtn} onClick={() => onDelete(project)}><Trash2 size={13} /> Delete</button>
+        <button style={styles.editBtn}   onClick={(e) => { e.stopPropagation(); onEdit(project); }}><Pencil size={13} /> Edit</button>
+        <button style={styles.deleteBtn} onClick={(e) => { e.stopPropagation(); onDelete(project); }}><Trash2 size={13} /> Delete</button>
       </div>
     </div>
   );
