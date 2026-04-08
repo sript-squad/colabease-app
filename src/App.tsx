@@ -12,13 +12,14 @@ import Milestones from "./pages/Milestones";
 import Whiteboard from "./pages/Whiteboard";
 import ProjectsPage from "./components/ProjectsPage"; 
 import ProjectDetails from "./pages/ProjectDetails";
-// ... other imports
+import Landing from "./pages/Landing";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public route — Cognito redirects here after login */}
+        {/* Public route — Landing page at root */}
+        <Route path="/" element={<Landing />} />
         <Route path="/callback" element={<Callback />} />
 
         {/* All other routes are protected */}
@@ -33,7 +34,7 @@ function App() {
                 <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
                   <Toolbar />
                   <Routes>
-                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/projects/:id" element={<ProjectDetails />} />
                     <Route path="/chat" element={<Chat />} />

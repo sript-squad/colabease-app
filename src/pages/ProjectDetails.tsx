@@ -115,6 +115,18 @@ export default function ProjectDetailsPage() {
     }
   };
 
+  const handleDeleteTask = async () => {
+    if (!viewingTask) return;
+    if (!confirm('Are you sure you want to delete this task?')) return;
+    try {
+      await taskService.delete(viewingTask._id);
+      setViewingTask(null);
+      fetchProjectData();
+    } catch (e) {
+      console.error('Failed to delete task', e);
+    }
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -358,7 +370,8 @@ export default function ProjectDetailsPage() {
             </FormControl>
           </DialogContent>
         )}
-        <DialogActions>
+        <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+          <Button onClick={handleDeleteTask} color="error" variant="outlined">Delete Task</Button>
           <Button onClick={() => setViewingTask(null)} variant="outlined">Close</Button>
         </DialogActions>
       </Dialog>
