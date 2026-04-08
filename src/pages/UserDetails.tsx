@@ -21,12 +21,13 @@ import {
   ExternalLink,
   Award,
   Activity,
-  History
+  History,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../auth/authContex';
 
 const UserDetails = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -187,6 +188,40 @@ const UserDetails = () => {
                     <SocialButton icon={<ExternalLink size={18} />} label="Portfolio" />
                     <SocialButton icon={<Award size={18} />} label="Certificates" />
                   </Box>
+                </Paper>
+
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    p: 3, 
+                    borderRadius: 6, 
+                    bgcolor: 'rgba(211, 47, 47, 0.02)',
+                    border: '1px solid rgba(211, 47, 47, 0.1)'
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2, color: '#d32f2f', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Security & Session
+                  </Typography>
+                  <Button 
+                    variant="outlined" 
+                    fullWidth
+                    startIcon={<LogOut size={18} />}
+                    onClick={logout}
+                    sx={{ 
+                      borderRadius: 3, 
+                      textTransform: 'none', 
+                      borderColor: 'rgba(211, 47, 47, 0.2)', 
+                      color: '#d32f2f',
+                      fontWeight: 600,
+                      '&:hover': { 
+                        borderColor: '#d32f2f', 
+                        bgcolor: 'rgba(211, 47, 47, 0.04)',
+                        boxShadow: '0 2px 8px rgba(211, 47, 47, 0.08)'
+                      }
+                    }}
+                  >
+                    Log Out of Account
+                  </Button>
                 </Paper>
               </Box>
             </Grid>
