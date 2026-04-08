@@ -1,5 +1,5 @@
-import apiClient from './apiClient';
 import { CreateProjectPayload, UpdateProjectPayload } from '../types/Project.types';
+import { apiClient } from './apiClient';
 
 export const projectService = {
   getAll: (status?: string) => {

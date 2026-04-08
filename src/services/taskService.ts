@@ -1,5 +1,5 @@
-import apiClient from './apiClient';
 import { CreateTaskPayload, UpdateTaskPayload } from '../types/Task.types';
+import { apiClient } from './apiClient';
 
 export const taskService = {
   getAll: (projectId?: string) => {
