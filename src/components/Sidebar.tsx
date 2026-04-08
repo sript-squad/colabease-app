@@ -124,16 +124,16 @@ const Sidebar = () => {
         </List>
       </Box>
 
-      <Box sx={{ position: "absolute", bottom: 0, width: "100%", p: 2, borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>
+      <Box sx={{ position: "absolute", bottom: 0, width: "100%", p: 2, borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Avatar sx={{ width: 36, height: 36, bgcolor: "#3B6D11", fontSize: "0.85rem" }}>
             {user?.username ? getInitials(user.username) : "U"}
           </Avatar>
           <Box sx={{ ml: 1.5 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: "var(--text-color-light, #212529)", lineHeight: 1.2 }}>
               {user?.username || "ColabEase User"}
             </Typography>
-            <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.5)" }}>
+            <Typography variant="caption" sx={{ color: "var(--text-color-light, #212529)", opacity: 0.7 }}>
               {user?.email || "Team Member"}
             </Typography>
           </Box>
