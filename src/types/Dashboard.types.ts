@@ -1,8 +1,6 @@
 export interface DashboardStats {
   activeProjects: number;
-  completedTasks: number;
   teamMembers: number;
-  hoursTracked: number | null; // null = not available from backend
 }
 
 export interface DashboardProject {

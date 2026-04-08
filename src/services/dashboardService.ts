@@ -8,14 +8,12 @@ import { Task } from '../types/Task.types';
  * data from the projects and tasks endpoints.
  */
 export const getDashboardStats = async (): Promise<DashboardStats> => {
-  const [projectsRes, doneTasksRes, allTasksRes] = await Promise.all([
+  const [projectsRes, allTasksRes] = await Promise.all([
     apiClient.get<Project[]>('/projects'),
-    apiClient.get<Task[]>('/tasks', { params: { status: 'DONE', limit: 1000 } }),
     apiClient.get<Task[]>('/tasks', { params: { limit: 1000 } }),
   ]);
 
   const projects = projectsRes.data;
-  const doneTasks = doneTasksRes.data;
 
   // Active = planning or in_progress
   const activeProjects = projects.filter(
@@ -40,9 +38,7 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
 
   return {
     activeProjects,
-    completedTasks: doneTasks.length,
     teamMembers: memberSet.size,
-    hoursTracked: null, // Not available from backend yet
   };
 };
 
