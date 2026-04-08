@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
-import { X, Loader2, FolderKanban } from 'lucide-react';
+import { X, Loader2, FolderKanban, Sparkles, CheckSquare, Square } from 'lucide-react';
 import { projectService } from '../services/projectService';
+import { taskService } from '../services/taskService';
+import { aiService } from '../services/aiService';
 import { Project, ProjectStatus } from '../types/Project.types';
+
+interface SuggestedTask {
+  title: string;
+  description: string;
+  selected: boolean;
+}
+
 
 interface ProjectModalProps {
   project:  Project | null;
@@ -37,6 +46,10 @@ export default function ProjectModal({ project, onClose, onSaved }: ProjectModal
   const [form, setForm]     = useState<FormState>(EMPTY);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors]   = useState<Partial<Record<keyof FormState | 'submit', string>>>({});
+  
+  const [generatingTasks, setGeneratingTasks] = useState(false);
+  const [suggestedTasks, setSuggestedTasks] = useState<SuggestedTask[]>([]);
+
 
   useEffect(() => {
     if (project) {
@@ -69,6 +82,24 @@ export default function ProjectModal({ project, onClose, onSaved }: ProjectModal
     return Object.keys(e).length === 0;
   };
 
+  const handleGenerateTasks = async () => {
+    if (!form.name.trim()) {
+      setErrors((prev) => ({ ...prev, name: 'Please enter a project name first to generate tasks.' }));
+      return;
+    }
+    try {
+      setGeneratingTasks(true);
+      const res = await aiService.suggestTasks(form.name, form.description);
+      const tasks = res.data.tasks.map((t: any) => ({ ...t, selected: true }));
+      setSuggestedTasks(tasks);
+    } catch (err) {
+      console.error(err);
+      setErrors((prev) => ({ ...prev, submit: 'Failed to generate AI tasks. Please try again later.' }));
+    } finally {
+      setGeneratingTasks(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validate()) return;
     const payload = {
@@ -82,9 +113,33 @@ export default function ProjectModal({ project, onClose, onSaved }: ProjectModal
     };
     try {
       setLoading(true);
-      isEdit
-        ? await projectService.update(project!._id, payload)
-        : await projectService.create(payload);
+      let createdProjectId = project?._id;
+      
+      if (isEdit) {
+        await projectService.update(project!._id, payload);
+      } else {
+        const res = await projectService.create(payload);
+        createdProjectId = res.data._id;
+      }
+      
+      if (createdProjectId) {
+        const selectedTasks = suggestedTasks.filter(t => t.selected);
+        for (const t of selectedTasks) {
+          try {
+            await taskService.create({
+              title: t.title,
+              description: t.description,
+              projectId: createdProjectId,
+              reporterId: form.ownerId || 'current-user',
+              priority: 'MEDIUM',
+              status: 'OPEN',
+            });
+          } catch (e) {
+            console.error('Failed to create AI task:', t.title);
+          }
+        }
+      }
+      
       onSaved();
     } catch (err: any) {
       const msg = err?.response?.data?.message;
@@ -121,6 +176,44 @@ export default function ProjectModal({ project, onClose, onSaved }: ProjectModal
               placeholder="Brief description..."
               value={form.description} onChange={(e) => set('description', e.target.value)} rows={3} />
           </Field>
+
+          <div style={s.aiSection}>
+            <div style={s.aiHeader}>
+              <h3 style={s.aiTitle}><Sparkles size={16} color="#3B6D11" /> AI Task Suggestions</h3>
+              <button 
+                type="button" 
+                style={s.aiBtn} 
+                onClick={handleGenerateTasks} 
+                disabled={generatingTasks || !form.name.trim()}
+              >
+                {generatingTasks ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : 'Generate Tasks'}
+              </button>
+            </div>
+            
+            {suggestedTasks.length > 0 && (
+              <div style={s.aiTaskList}>
+                {suggestedTasks.map((t, idx) => (
+                  <div 
+                    key={idx} 
+                    style={{...s.aiTaskItem, ...(t.selected ? s.aiTaskSelected : {})}}
+                    onClick={() => {
+                      const newT = [...suggestedTasks];
+                      newT[idx].selected = !newT[idx].selected;
+                      setSuggestedTasks(newT);
+                    }}
+                  >
+                    <div style={s.aiTaskCheckbox}>
+                      {t.selected ? <CheckSquare size={16} color="#3B6D11" /> : <Square size={16} color="#ccc" />}
+                    </div>
+                    <div>
+                      <h4 style={s.aiTaskTitle}>{t.title}</h4>
+                      <p style={s.aiTaskDesc}>{t.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           <Field label="Status">
             <select style={s.input} value={form.status} onChange={(e) => set('status', e.target.value as ProjectStatus)}>
@@ -194,4 +287,14 @@ const s: Record<string, React.CSSProperties> = {
   cancelBtn: { padding: '10px 20px', background: '#f4f7f2', color: '#3B6D11', border: 'none', borderRadius: 9, fontWeight: 600, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' },
   saveBtn:   { display: 'flex', alignItems: 'center', gap: 7, padding: '10px 22px', background: 'linear-gradient(135deg,#3B6D11,#639922)', color: '#fff', border: 'none', borderRadius: 9, fontWeight: 600, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' },
   submitErr: { background: '#FCEBEB', border: '1px solid #F09595', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#A32D2D' },
+  aiSection: { marginTop: 4, padding: '16px', background: '#F8FAF5', borderRadius: 12, border: '1px solid #EAF3DE' },
+  aiHeader:  { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  aiTitle:   { margin: 0, fontSize: 14, fontWeight: 600, color: '#27500A', display: 'flex', alignItems: 'center', gap: 6 },
+  aiBtn:     { display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: '#fff', border: '1px solid #C0DD97', borderRadius: 6, color: '#3B6D11', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' },
+  aiTaskList: { marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 200, overflowY: 'auto' },
+  aiTaskItem: { display: 'flex', gap: 10, padding: '10px 12px', background: '#fff', border: '1px solid #eaeaea', borderRadius: 8, cursor: 'pointer', transition: 'all 0.2s' },
+  aiTaskSelected: { border: '1px solid #C0DD97', background: '#FAFCF8' },
+  aiTaskCheckbox: { marginTop: 2 },
+  aiTaskTitle: { margin: 0, fontSize: 13, fontWeight: 600, color: '#1a2e0f', marginBottom: 2 },
+  aiTaskDesc: { margin: 0, fontSize: 12, color: '#7a9e7a', lineHeight: '1.4' },
 };
