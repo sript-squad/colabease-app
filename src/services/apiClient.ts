@@ -1,5 +1,7 @@
+import { fetchAuthSession } from '@aws-amplify/auth';
 import axios from 'axios';
 
+//  axios client to main backend service
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
   headers: {
@@ -7,40 +9,102 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor — attach Cognito access token if available
-apiClient.interceptors.request.use(
-  (config) => {
-    // Token is set dynamically via setAuthToken() after login
-    const token = apiClient.defaults.headers.common['Authorization'];
-    if (token) {
-      config.headers.Authorization = token;
-    }
-    return config;
+// axios client to chat service
+const chatServiceApiClient = axios.create({
+  baseURL: import.meta.env.VITE_CHAT_API_BASE_URL || 'http://localhost:4000',
+  headers: {
+    'Content-Type': 'application/json',
   },
-  (error) => Promise.reject(error),
-);
+});
 
-// Response interceptor — standardized error handling
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      console.warn('[API] Unauthorized — token may have expired');
+// Request interceptor to add auth token to main API client
+apiClient.interceptors.request.use(async (config) => {
+  try {
+    const session = await fetchAuthSession();
+    const idToken = session.tokens?.idToken?.toString();
+
+    if (idToken) {
+      config.headers.Authorization = `Bearer ${idToken}`;
     }
-    return Promise.reject(error);
-  },
-);
-
-/**
- * Call this after login to attach the Cognito access token
- * to all subsequent API requests.
- */
-export const setAuthToken = (token: string | null) => {
-  if (token) {
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete apiClient.defaults.headers.common['Authorization'];
+  } catch (e) {
+    console.log('No session');
   }
-};
 
-export default apiClient;
+  return config;
+});
+
+
+// Response interceptor to handle 401 and attempt token refresh
+apiClient.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // If 401 and not retried yet
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // 🔥 FORCE refresh
+        const session = await fetchAuthSession({ forceRefresh: true });
+        const newToken = session.tokens?.idToken?.toString();
+
+        if (newToken) {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return apiClient(originalRequest); // retry request
+        }
+      } catch (e) {
+        console.error('Refresh failed');
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// Similar interceptors for chat service client
+chatServiceApiClient.interceptors.request.use(async (config) => {
+  try {
+    const session = await fetchAuthSession();
+    const idToken = session.tokens?.idToken?.toString();
+
+    if (idToken) {
+      config.headers.Authorization = `Bearer ${idToken}`;
+    }
+  } catch (e) {
+    console.log('No session');
+  }
+
+  return config;
+});
+
+// Response interceptor to handle 401 and attempt token refresh
+chatServiceApiClient.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // If 401 and not retried yet
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // 🔥 FORCE refresh
+        const session = await fetchAuthSession({ forceRefresh: true });
+        const newToken = session.tokens?.idToken?.toString();
+
+        if (newToken) {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return chatServiceApiClient(originalRequest); // retry request
+        }
+      } catch (e) {
+        console.error('Refresh failed');
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+
+export  {apiClient, chatServiceApiClient};

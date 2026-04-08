@@ -1,5 +1,5 @@
-import apiClient from './apiClient';
 import { Document, CreateDocumentDto, UpdateDocumentDto } from '../types/Document.types';
+import { apiClient } from './apiClient';
 
 export const documentService = {
   getAll: (projectId?: string) => 

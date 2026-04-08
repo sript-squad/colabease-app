@@ -1,7 +1,7 @@
-import apiClient from './apiClient';
 import { DashboardStats, DashboardProject } from '../types/Dashboard.types';
 import { Project } from '../types/Project.types';
 import { Task } from '../types/Task.types';
+import { apiClient } from './apiClient';
 
 /**
  * Fetch aggregated dashboard statistics by combining
