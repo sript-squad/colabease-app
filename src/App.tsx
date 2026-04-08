@@ -9,7 +9,6 @@ import { Chat, Settings } from "@mui/icons-material";
 import Documents from "./pages/Documents";
 import Files from "./pages/Files";
 import Milestones from "./pages/Milestones";
-import Tasks from "./pages/Tasks";
 import Whiteboard from "./pages/Whiteboard";
 import ProjectsPage from "./components/ProjectsPage"; 
 import ProjectDetails from "./pages/ProjectDetails";
@@ -37,7 +36,6 @@ function App() {
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/projects/:id" element={<ProjectDetails />} />
-                    <Route path="/tasks" element={<Tasks />} />
                     <Route path="/chat" element={<Chat />} />
                     <Route path="/files" element={<Files />} />
                     <Route path="/milestones" element={<Milestones />} />

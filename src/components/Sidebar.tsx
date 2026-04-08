@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import {
   Home,
-  ListAlt,
   Folder,
   Chat,
   FileCopy,
@@ -51,16 +50,6 @@ const Sidebar = () => {
             <Home sx={{ color: "var(--text-color)" }} />
           </ListItemIcon>
           <ListItemText primary="Dashboard" />
-        </ListItemButton>
-        <ListItemButton
-          component={Link}
-          to="/tasks"
-          sx={{ "&:hover": { backgroundColor: "var(--secondary-color)" } }}
-        >
-          <ListItemIcon>
-            <ListAlt sx={{ color: "var(--text-color)" }} />
-          </ListItemIcon>
-          <ListItemText primary="Tasks" />
         </ListItemButton>
         <ListItemButton
           component={Link}
