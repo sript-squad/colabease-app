@@ -16,12 +16,10 @@ import {
 } from "@mui/material";
 import {
   Assignment,
-  CheckCircle,
   People,
-  HourglassEmpty,
 } from "@mui/icons-material";
 import { useState, useEffect, useCallback } from "react";
-import NewProject from "../components/NewProject";
+import ProjectModal from "../components/ProjectsModal";
 import { getDashboardStats, getRecentProjects } from "../services/dashboardService";
 import { DashboardStats, DashboardProject } from "../types/Dashboard.types";
 
@@ -69,7 +67,7 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, icon, loading }: StatCardProps) => (
-  <Grid item xs={12} sm={6} md={3}>
+  <Grid item xs={12} sm={6} md={6}>
     <Paper sx={{ p: 2 }}>
       <Typography variant="h6">{title}</Typography>
       <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -86,7 +84,7 @@ const StatCard = ({ title, value, icon, loading }: StatCardProps) => (
 
 // ── Dashboard Component ─────────────────────────────────────────────
 const Dashboard = () => {
-  const [openNewProject, setOpenNewProject] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [projects, setProjects] = useState<DashboardProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,22 +114,12 @@ const Dashboard = () => {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  const handleOpenNewProject = () => {
-    setOpenNewProject(true);
+  const handleOpenModal = () => {
+    setShowModal(true);
   };
 
-  const handleCloseNewProject = () => {
-    setOpenNewProject(false);
-  };
-
-  const handleCreateProject = (sourceData: {
-    name: string;
-    description?: string;
-    ownerId: string;
-  }) => {
-    console.log("Create project with data:", sourceData);
-    console.log("This would POST to: /projects");
-    alert("Project creation function designed for backend integration");
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
   return (
@@ -145,15 +133,20 @@ const Dashboard = () => {
         }}
       >
         <Typography variant="h4">Welcome back! 👋</Typography>
-        <Button variant="contained" onClick={handleOpenNewProject}>
+        <Button variant="contained" onClick={handleOpenModal}>
           + New Project
         </Button>
       </Box>
-      <NewProject
-        open={openNewProject}
-        onClose={handleCloseNewProject}
-        onCreate={handleCreateProject}
-      />
+      {showModal && (
+        <ProjectModal
+          project={null}
+          onClose={handleCloseModal}
+          onSaved={() => {
+            handleCloseModal();
+            fetchDashboardData();
+          }}
+        />
+      )}
 
       {/* Error banner */}
       {error && (
@@ -179,21 +172,9 @@ const Dashboard = () => {
           loading={loading}
         />
         <StatCard
-          title="Tasks Completed"
-          value={stats?.completedTasks ?? null}
-          icon={<CheckCircle sx={{ mr: 1 }} />}
-          loading={loading}
-        />
-        <StatCard
           title="Team Members"
           value={stats?.teamMembers ?? null}
           icon={<People sx={{ mr: 1 }} />}
-          loading={loading}
-        />
-        <StatCard
-          title="Hours Tracked"
-          value={stats?.hoursTracked ?? null}
-          icon={<HourglassEmpty sx={{ mr: 1 }} />}
           loading={loading}
         />
 
