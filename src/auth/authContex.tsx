@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import {
   fetchAuthSession,
-  getCurrentUser,
   signInWithRedirect,
   signOut,
 } from 'aws-amplify/auth';
@@ -13,9 +12,7 @@ interface AuthTokens {
 }
 
 interface AuthUser {
-  username: string;
-  userId: string;
-  email?: string;
+  email: string;
 }
 
 interface AuthContextType {
@@ -38,17 +35,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loadSession = async () => {
     try {
-      const currentUser = await getCurrentUser();
+     
       const session = await fetchAuthSession();
 
       const accessToken = session.tokens?.accessToken?.toString() ?? '';
       const idToken = session.tokens?.idToken?.toString() ?? '';
 
       // Extract email from id token claims
-      const email = session.tokens?.idToken?.payload?.email as string | undefined;
+      const email = session.tokens?.idToken?.payload?.email as string;
 
       setTokens({ accessToken, idToken });
-      setUser({ username: currentUser.username, userId: currentUser.userId, email });
+      setUser({ email });
       setIsAuthenticated(true);
     } catch {
       setIsAuthenticated(false);

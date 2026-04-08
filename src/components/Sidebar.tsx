@@ -9,6 +9,7 @@ import {
   Typography,
   Box,
   Badge,
+  colors,
 } from "@mui/material";
 import {
   Home,
@@ -21,10 +22,13 @@ import {
   Settings,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { useAuth } from "../auth/authContex";
 
 const drawerWidth = 240;
 
 const Sidebar = () => {
+   const { user } = useAuth();
+
   return (
     <Drawer
       variant="permanent"
@@ -126,11 +130,10 @@ const Sidebar = () => {
       </List>
       <Box sx={{ position: "absolute", bottom: 0, width: "100%", p: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Avatar>JD</Avatar>
+          <Avatar></Avatar>
           <Box sx={{ ml: 2 }}>
-            <Typography variant="subtitle1">John Doe</Typography>
             <Typography variant="body2" color="textSecondary">
-              john@company.com
+              {user?.email}
             </Typography>
           </Box>
         </Box>
