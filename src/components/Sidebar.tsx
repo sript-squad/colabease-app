@@ -20,11 +20,31 @@ import {
   Brush,
   Settings,
 } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../auth/authContex";
 
 const drawerWidth = 240;
 
+const SIDEBAR_ITEMS = [
+  { text: "Dashboard", path: "/", icon: Home },
+  { text: "Projects", path: "/projects", icon: Folder },
+  { text: "Chat", path: "/chat", icon: Chat, badge: 5 },
+  { text: "Files", path: "/files", icon: FileCopy },
+  { text: "Milestones", path: "/milestones", icon: Assessment },
+  { text: "Documents", path: "/documents", icon: Description },
+  { text: "Whiteboard", path: "/whiteboard", icon: Brush },
+  { text: "Settings", path: "/settings", icon: Settings },
+];
+
 const Sidebar = () => {
+  const location = useLocation();
+  const { user } = useAuth();
+  
+  // Get initials for avatar
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
   return (
     <Drawer
       variant="permanent"
@@ -36,101 +56,85 @@ const Sidebar = () => {
           boxSizing: "border-box",
           backgroundColor: "var(--accent-color)",
           color: "var(--text-color)",
+          borderRight: "1px solid rgba(255, 255, 255, 0.05)",
         },
       }}
     >
       <Toolbar />
-      <List>
-        <ListItemButton
-          component={Link}
-          to="/"
-          sx={{ "&:hover": { backgroundColor: "var(--secondary-color)" } }}
-        >
-          <ListItemIcon>
-            <Home sx={{ color: "var(--text-color)" }} />
-          </ListItemIcon>
-          <ListItemText primary="Dashboard" />
-        </ListItemButton>
-        <ListItemButton
-          component={Link}
-          to="/projects"
-          sx={{ "&:hover": { backgroundColor: "var(--secondary-color)" } }}
-        >
-          <ListItemIcon>
-            <Folder sx={{ color: "var(--text-color)" }} />
-          </ListItemIcon>
-          <ListItemText primary="Projects" />
-        </ListItemButton>
-        <ListItemButton
-          component={Link}
-          to="/chat"
-          sx={{ "&:hover": { backgroundColor: "var(--secondary-color)" } }}
-        >
-          <ListItemIcon>
-            <Badge badgeContent={5} color="error">
-              <Chat sx={{ color: "var(--text-color)" }} />
-            </Badge>
-          </ListItemIcon>
-          <ListItemText primary="Chat" />
-        </ListItemButton>
-        <ListItemButton
-          component={Link}
-          to="/files"
-          sx={{ "&:hover": { backgroundColor: "var(--secondary-color)" } }}
-        >
-          <ListItemIcon>
-            <FileCopy sx={{ color: "var(--text-color)" }} />
-          </ListItemIcon>
-          <ListItemText primary="Files" />
-        </ListItemButton>
-        <ListItemButton
-          component={Link}
-          to="/milestones"
-          sx={{ "&:hover": { backgroundColor: "var(--secondary-color)" } }}
-        >
-          <ListItemIcon>
-            <Assessment sx={{ color: "var(--text-color)" }} />
-          </ListItemIcon>
-          <ListItemText primary="Milestones" />
-        </ListItemButton>
-        <ListItemButton
-          component={Link}
-          to="/documents"
-          sx={{ "&:hover": { backgroundColor: "var(--secondary-color)" } }}
-        >
-          <ListItemIcon>
-            <Description sx={{ color: "var(--text-color)" }} />
-          </ListItemIcon>
-          <ListItemText primary="Documents" />
-        </ListItemButton>
-        <ListItemButton
-          component={Link}
-          to="/whiteboard"
-          sx={{ "&:hover": { backgroundColor: "var(--secondary-color)" } }}
-        >
-          <ListItemIcon>
-            <Brush sx={{ color: "var(--text-color)" }} />
-          </ListItemIcon>
-          <ListItemText primary="Whiteboard" />
-        </ListItemButton>
-        <ListItemButton
-          component={Link}
-          to="/settings"
-          sx={{ "&:hover": { backgroundColor: "var(--secondary-color)" } }}
-        >
-          <ListItemIcon>
-            <Settings sx={{ color: "var(--text-color)" }} />
-          </ListItemIcon>
-          <ListItemText primary="Settings" />
-        </ListItemButton>
-      </List>
-      <Box sx={{ position: "absolute", bottom: 0, width: "100%", p: 2 }}>
+      <Box sx={{ overflow: "auto", mt: 2 }}>
+        <List sx={{ px: 1 }}>
+          {SIDEBAR_ITEMS.map((item) => {
+            const isActive = 
+              item.path === "/" 
+                ? location.pathname === "/" 
+                : location.pathname.startsWith(item.path);
+
+            const Icon = item.icon;
+
+            return (
+              <ListItemButton
+                key={item.text}
+                component={Link}
+                to={item.path}
+                sx={{
+                  mb: 0.5,
+                  borderRadius: "10px",
+                  position: "relative",
+                  transition: "all 0.2s ease",
+                  backgroundColor: isActive ? "rgba(59, 109, 17, 0.08)" : "transparent",
+                  color: isActive ? "#3B6D11" : "var(--text-color-light, #212529)",
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                  },
+                  // Green accent border for active state
+                  "&::before": isActive ? {
+                    content: '""',
+                    position: "absolute",
+                    left: 0,
+                    top: "15%",
+                    bottom: "15%",
+                    width: "4px",
+                    backgroundColor: "#3B6D11",
+                    borderRadius: "0 4px 4px 0",
+                    boxShadow: "2px 0 8px rgba(59, 109, 17, 0.3)",
+                  } : {},
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 40 }}>
+                  {item.badge ? (
+                    <Badge badgeContent={item.badge} color="error" sx={{ "& .MuiBadge-badge": { fontSize: 10, height: 16, minWidth: 16 } }}>
+                      <Icon sx={{ color: isActive ? "#3B6D11" : "inherit", fontSize: 22 }} />
+                    </Badge>
+                  ) : (
+                    <Icon sx={{ color: isActive ? "#3B6D11" : "inherit", fontSize: 22 }} />
+                  )}
+                </ListItemIcon>
+                <ListItemText 
+                  primary={item.text} 
+                  primaryTypographyProps={{ 
+                    fontSize: "0.95rem", 
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? "#3B6D11" : "inherit",
+                    letterSpacing: "0.01em"
+                  }} 
+                />
+              </ListItemButton>
+            );
+          })}
+        </List>
+      </Box>
+
+      <Box sx={{ position: "absolute", bottom: 0, width: "100%", p: 2, borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Avatar>JD</Avatar>
-          <Box sx={{ ml: 2 }}>
-            <Typography variant="subtitle1">John Doe</Typography>
-            <Typography variant="body2" color="textSecondary">
-              john@company.com
+          <Avatar sx={{ width: 36, height: 36, bgcolor: "#3B6D11", fontSize: "0.85rem" }}>
+            {user?.username ? getInitials(user.username) : "U"}
+          </Avatar>
+          <Box sx={{ ml: 1.5 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>
+              {user?.username || "ColabEase User"}
+            </Typography>
+            <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.5)" }}>
+              {user?.email || "Team Member"}
             </Typography>
           </Box>
         </Box>
