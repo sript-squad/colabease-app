@@ -13,6 +13,7 @@ interface AuthTokens {
 
 interface AuthUser {
   email: string;
+  username?: string;
 }
 
 interface AuthContextType {
@@ -43,9 +44,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Extract email from id token claims
       const email = session.tokens?.idToken?.payload?.email as string;
+      const username = (session.tokens?.idToken?.payload?.['preferred_username'] as string) || email?.split('@')[0];
 
       setTokens({ accessToken, idToken });
-      setUser({ email });
+      setUser({ email, username });
       setIsAuthenticated(true);
     } catch {
       setIsAuthenticated(false);
