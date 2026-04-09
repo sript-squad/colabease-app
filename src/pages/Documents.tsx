@@ -80,7 +80,10 @@ export default function DocumentsPage() {
         documentService.getAll(selectedProjectId || undefined),
         projectService.getAll('')
       ]);
-      setDocuments(docsRes.data);
+      const activeProjectIds = new Set(projRes.data.map((p: Project) => p._id));
+      const userAssignedDocuments = docsRes.data.filter((doc: Document) => activeProjectIds.has(doc.projectId));
+      
+      setDocuments(userAssignedDocuments);
       setProjects(projRes.data);
     } catch (err) {
       console.error(err);
