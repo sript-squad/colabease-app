@@ -56,7 +56,7 @@ export default function Landing() {
 
         {/* Dashboard Promo Image */}
         <Box sx={{ position: 'relative', maxWidth: '1000px', mx: 'auto', borderRadius: 4, overflow: 'hidden', boxShadow: '0 20px 40px rgba(59, 109, 17, 0.15)', border: '1px solid rgba(0,0,0,0.05)' }}>
-          <img src="/pm_dashboard_hero.png" alt="Colabease Project Dashboard" style={{ width: '100%', display: 'block' }} />
+          <img src="/dashboard-image.png" alt="Colabease Project Dashboard" style={{ width: '100%', display: 'block' }} />
         </Box>
       </Container>      
 
