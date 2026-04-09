@@ -9,8 +9,6 @@ import {
   Typography,
   Box,
   Badge,
-  IconButton,
-  Tooltip,
 } from "@mui/material";
 import {
   Home,
@@ -21,7 +19,6 @@ import {
   Description,
   Brush,
   Settings,
-  Logout,
 } from "@mui/icons-material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/authContex";
@@ -50,14 +47,7 @@ const Sidebar = () => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+
 
   return (
     <Drawer
@@ -178,23 +168,7 @@ const Sidebar = () => {
                 {user?.email || "Team Member"}
               </Typography>
             </Box>
-            <Tooltip title="Logout">
-              <IconButton 
-                size="small" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleLogout();
-                }}
-                sx={{ 
-                  ml: 0.5,
-                  color: "#d32f2f",
-                  "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)" }
-                }}
-              >
-                <Logout fontSize="small" />
-              </IconButton>
-            </Tooltip>
+
           </Box>
         </ListItemButton>
       </Box>
