@@ -161,36 +161,52 @@ export default function ProjectDetailsPage() {
   ];
 
   return (
-    <Box sx={{ p: 0, fontFamily: 'Arial, Helvetica, sans-serif' }}>
+    <Box sx={{ p: 0, fontFamily: 'Outfit, sans-serif' }}>
       {/* Header */}
       <Box sx={{ 
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-        borderBottom: '1px solid rgba(0,0,0,0.05)', mb: 3, pb: 2
+        borderBottom: '1px solid #EAF3DE', mb: 3, pb: 2,
+        background: 'linear-gradient(to right, #FFFFFF, #FDFDFD)'
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <IconButton onClick={() => navigate('/projects')}>
+          <IconButton 
+            onClick={() => navigate('/projects')}
+            sx={{ color: '#3B6D11', '&:hover': { background: '#EAF3DE' } }}
+          >
             <ArrowBack />
           </IconButton>
           <Box>
-            <Typography variant="h5" fontWeight="bold" color="#1a2e0f">
+            <Typography variant="h5" fontWeight="800" color="#1a2e0f" sx={{ tracking: '-0.5px' }}>
               {project.name}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="#7a9e7a" fontWeight="500">
               {project.description || 'No description provided.'}
             </Typography>
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 32, height: 32, fontSize: '14px' } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <AvatarGroup max={4} sx={{ 
+            '& .MuiAvatar-root': { width: 36, height: 36, fontSize: '14px', border: '2px solid #fff' } 
+          }}>
             {project.members?.map(m => (
-              <Avatar key={m}>{m.substring(0, 2).toUpperCase()}</Avatar>
+              <Avatar key={m} sx={{ bgcolor: '#C0DD97', color: '#1a2e0f' }}>
+                {m.substring(0, 2).toUpperCase()}
+              </Avatar>
             ))}
           </AvatarGroup>
           <Button 
-            variant="outlined" 
-            size="small" 
+            variant="contained" 
+            size="medium" 
             startIcon={<PersonAdd />}
-            sx={{ textTransform: 'none', borderColor: '#C0DD97', color: '#3B6D11' }}
+            sx={{ 
+              textTransform: 'none', 
+              background: '#3B6D11', 
+              color: '#fff',
+              boxShadow: '0 4px 12px rgba(59, 109, 17, 0.2)',
+              borderRadius: '10px',
+              px: 3,
+              '&:hover': { background: '#2d540d', boxShadow: '0 6px 16px rgba(59, 109, 17, 0.3)' } 
+            }}
             onClick={() => setIsMemberModalOpen(true)}
           >
             Add Member
@@ -199,62 +215,106 @@ export default function ProjectDetailsPage() {
       </Box>
 
       {/* Board */}
-      <Box sx={{ display: 'flex', gap: 3, overflowX: 'auto', pb: 2, minHeight: '60vh' }}>
+      <Box sx={{ display: 'flex', gap: 3, overflowX: 'auto', pb: 4, minHeight: '65vh' }}>
         {columns.map(col => (
           <Paper 
             key={col.value} 
             sx={{ 
               flex: '0 0 320px', 
-              bgcolor: '#f4f5f7', 
-              p: 2, 
-              borderRadius: 2,
+              bgcolor: '#F8FAF5', 
+              p: 2.5, 
+              borderRadius: '16px',
+              border: '1px solid #EAF3DE',
               display: 'flex',
               flexDirection: 'column',
-              gap: 2
+              gap: 2.5,
+              transition: 'all 0.3s ease',
+              '&:hover': { boxShadow: '0 8px 24px rgba(0,0,0,0.03)' }
             }}
             elevation={0}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => handleDrop(e, col.value)}
           >
-            <Typography variant="subtitle2" fontWeight="bold" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
-              {col.title} • {tasks.filter(t => t.status === col.value).length}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="subtitle2" fontWeight="800" color="#3B6D11" sx={{ textTransform: 'uppercase', letterSpacing: '1px' }}>
+                {col.title}
+              </Typography>
+              <Chip 
+                label={tasks.filter(t => t.status === col.value).length} 
+                size="small" 
+                sx={{ bgcolor: '#EAF3DE', color: '#3B6D11', fontWeight: 'bold', height: '20px' }} 
+              />
+            </Box>
             
             {tasks.filter(t => t.status === col.value).map(task => (
               <Card 
                 key={task._id} 
-                sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 } }}
+                sx={{ 
+                  cursor: 'pointer', 
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                  border: '1px solid #F0F4EE',
+                  borderLeft: `5px solid ${task.priority === 'URGENT' ? '#D32F2F' : task.priority === 'HIGH' ? '#FBC02D' : '#3B6D11'}`,
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': { 
+                    transform: 'translateY(-4px)', 
+                    boxShadow: '0 12px 24px rgba(0,0,0,0.08)',
+                    borderColor: '#C0DD97'
+                  } 
+                }}
                 draggable
                 onDragStart={(e) => handleDragStart(e, task._id)}
                 onClick={() => setViewingTask(task)}
               >
-                <CardContent sx={{ p: '12px !important' }}>
-                  <Typography variant="subtitle2" sx={{ mb: 1 }}>{task.title}</Typography>
+                <CardContent sx={{ p: '16px !important' }}>
+                  <Typography variant="subtitle2" fontWeight="700" color="#1a2e0f" sx={{ mb: 1.5, lineHeight: 1.4 }}>
+                    {task.title}
+                  </Typography>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Chip size="small" label={task.priority} sx={{ fontSize: '10px', height: '20px' }} />
-                    <Avatar sx={{ width: 24, height: 24, fontSize: '10px' }}>
+                    <Chip 
+                      size="small" 
+                      label={task.priority} 
+                      sx={{ 
+                        fontSize: '10px', 
+                        height: '20px', 
+                        fontWeight: 'bold',
+                        bgcolor: task.priority === 'URGENT' ? '#FCEBEB' : task.priority === 'HIGH' ? '#FFF9E6' : '#EAF3DE',
+                        color: task.priority === 'URGENT' ? '#A32D2D' : task.priority === 'HIGH' ? '#856404' : '#3B6D11',
+                      }} 
+                    />
+                    <Avatar sx={{ 
+                      width: 28, height: 28, fontSize: '12px', bgcolor: '#C0DD97', color: '#3B6D11', fontWeight: 'bold', border: '2px solid #fff' 
+                    }}>
                       {task.assigneeId ? task.assigneeId.substring(0, 2).toUpperCase() : '?'}
                     </Avatar>
                   </Box>
                 </CardContent>
               </Card>
             ))}
-
             <Button 
               fullWidth 
               startIcon={<Add />} 
-              sx={{ color: '#5e6c84', justifyContent: 'flex-start', textTransform: 'none', '&:hover': { bgcolor: 'rgba(9, 30, 66, 0.08)' } }}
+              sx={{ 
+                color: '#7a9e7a', 
+                justifyContent: 'flex-start', 
+                textTransform: 'none', 
+                fontWeight: '600',
+                borderRadius: '10px',
+                py: 1,
+                '&:hover': { bgcolor: '#EAF3DE', color: '#3B6D11' } 
+              }}
               onClick={() => setIsTaskModalOpen(true)}
             >
-              Create issue
+              Add a card
             </Button>
           </Paper>
         ))}
       </Box>
 
+
       {/* Draft Task Modal */}
       <Dialog open={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Task</DialogTitle>
+        <DialogTitle sx={{ fontWeight: '800', color: '#1a2e0f' }}>Create New Task</DialogTitle>
         <DialogContent dividers>
           <TextField
             autoFocus
@@ -264,7 +324,7 @@ export default function ProjectDetailsPage() {
             required
             value={newTask.title}
             onChange={(e) => setNewTask({...newTask, title: e.target.value})}
-            sx={{ mb: 2 }}
+            sx={{ mb: 3, '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3B6D11' } }}
           />
           <TextField
             margin="dense"
@@ -274,14 +334,15 @@ export default function ProjectDetailsPage() {
             rows={4}
             value={newTask.description}
             onChange={(e) => setNewTask({...newTask, description: e.target.value})}
-            sx={{ mb: 2 }}
+            sx={{ mb: 3, '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3B6D11' } }}
           />
-          <FormControl fullWidth margin="dense">
+          <FormControl fullWidth margin="dense" sx={{ mb: 3 }}>
             <InputLabel>Priority</InputLabel>
             <Select
               value={newTask.priority}
               label="Priority"
               onChange={(e) => setNewTask({...newTask, priority: e.target.value as TaskPriority})}
+              sx={{ '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3B6D11' } }}
             >
               <MenuItem value="LOW">Low</MenuItem>
               <MenuItem value="MEDIUM">Medium</MenuItem>
@@ -295,6 +356,7 @@ export default function ProjectDetailsPage() {
               value={newTask.assigneeId}
               label="Assignee"
               onChange={(e) => setNewTask({...newTask, assigneeId: e.target.value})}
+              sx={{ '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3B6D11' } }}
             >
               <MenuItem value=""><em>Unassigned</em></MenuItem>
               {project.members?.map(m => (
@@ -303,38 +365,61 @@ export default function ProjectDetailsPage() {
             </Select>
           </FormControl>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsTaskModalOpen(false)} color="inherit">Cancel</Button>
-          <Button onClick={handleCreateTask} variant="contained" disabled={!newTask.title.trim()}>Create</Button>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setIsTaskModalOpen(false)} sx={{ color: '#7a9e7a', fontWeight: '600' }}>Cancel</Button>
+          <Button 
+            onClick={handleCreateTask} 
+            variant="contained" 
+            disabled={!newTask.title.trim()}
+            sx={{ 
+              background: '#3B6D11', 
+              borderRadius: '8px',
+              '&:hover': { background: '#2d540d' }
+            }}
+          >
+            Create Task
+          </Button>
         </DialogActions>
       </Dialog>
 
       {/* Add Member Modal */}
       <Dialog open={isMemberModalOpen} onClose={() => setIsMemberModalOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Add Team Member</DialogTitle>
+        <DialogTitle sx={{ fontWeight: '800', color: '#1a2e0f' }}>Add Team Member</DialogTitle>
         <DialogContent dividers>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Enter the name or email of the team member you'd like to add to this project.
+          <Typography variant="body2" color="#7a9e7a" sx={{ mb: 3, fontWeight: '500' }}>
+            Invite a teammate to collaborate on this project.
           </Typography>
           <TextField
             autoFocus
             margin="dense"
-            label="Member Name or Email"
+            label="Email Address"
             fullWidth
             required
             value={newMember}
             onChange={(e) => setNewMember(e.target.value)}
+            sx={{ '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3B6D11' } }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsMemberModalOpen(false)} color="inherit">Cancel</Button>
-          <Button onClick={handleAddMember} variant="contained" disabled={!newMember.trim()}>Add</Button>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setIsMemberModalOpen(false)} sx={{ color: '#7a9e7a', fontWeight: '600' }}>Cancel</Button>
+          <Button 
+            onClick={handleAddMember} 
+            variant="contained" 
+            disabled={!newMember.trim()}
+            sx={{ 
+              background: '#3B6D11', 
+              borderRadius: '8px',
+              '&:hover': { background: '#2d540d' }
+            }}
+          >
+            Add Member
+          </Button>
         </DialogActions>
       </Dialog>
 
       {/* View/Edit Task Modal */}
       <Dialog open={!!viewingTask} onClose={() => setViewingTask(null)} maxWidth="sm" fullWidth>
-        <DialogTitle>Task Details</DialogTitle>
+        <DialogTitle sx={{ fontWeight: '800', color: '#1a2e0f' }}>Task Details</DialogTitle>
         {viewingTask && (
           <DialogContent dividers>
             <TextField
@@ -344,7 +429,7 @@ export default function ProjectDetailsPage() {
               value={viewingTask.title}
               onChange={(e) => setViewingTask({...viewingTask, title: e.target.value})}
               onBlur={() => handleUpdateViewingTask({ title: viewingTask.title })}
-              sx={{ mb: 2 }}
+              sx={{ mb: 3, '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3B6D11' } }}
             />
             <TextField
               margin="dense"
@@ -356,14 +441,15 @@ export default function ProjectDetailsPage() {
               onChange={(e) => setViewingTask({...viewingTask, description: e.target.value})}
               onBlur={() => handleUpdateViewingTask({ description: viewingTask.description })}
               placeholder="Add a more detailed description..."
-              sx={{ mb: 2 }}
+              sx={{ mb: 3, '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3B6D11' } }}
             />
-            <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
+            <FormControl fullWidth margin="dense" sx={{ mb: 3 }}>
               <InputLabel>Assignee</InputLabel>
               <Select
                 value={viewingTask.assigneeId || ''}
                 label="Assignee"
                 onChange={(e) => handleUpdateViewingTask({ assigneeId: e.target.value })}
+                sx={{ '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3B6D11' } }}
               >
                 <MenuItem value=""><em>Unassigned</em></MenuItem>
                 {project.members?.map(m => (
@@ -377,6 +463,7 @@ export default function ProjectDetailsPage() {
                 value={viewingTask.status}
                 label="Status"
                 onChange={(e) => handleUpdateViewingTask({ status: e.target.value as TaskStatus })}
+                sx={{ '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3B6D11' } }}
               >
                 <MenuItem value="OPEN">TO DO</MenuItem>
                 <MenuItem value="IN_PROGRESS">IN PROGRESS</MenuItem>
@@ -385,9 +472,19 @@ export default function ProjectDetailsPage() {
             </FormControl>
           </DialogContent>
         )}
-        <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
-          <Button onClick={handleDeleteTask} color="error" variant="outlined">Delete Task</Button>
-          <Button onClick={() => setViewingTask(null)} variant="outlined">Close</Button>
+        <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 3, pt: 2 }}>
+          <Button onClick={handleDeleteTask} color="error" variant="text" sx={{ fontWeight: '600' }}>Delete Task</Button>
+          <Button 
+            onClick={() => setViewingTask(null)} 
+            variant="outlined"
+            sx={{ 
+              borderColor: '#3B6D11', 
+              color: '#3B6D11',
+              '&:hover': { borderColor: '#2d540d', background: '#EAF3DE' }
+            }}
+          >
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
