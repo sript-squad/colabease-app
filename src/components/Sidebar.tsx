@@ -9,8 +9,6 @@ import {
   Typography,
   Box,
   Badge,
-  IconButton,
-  Tooltip,
 } from "@mui/material";
 import {
   Home,
@@ -21,10 +19,11 @@ import {
   Description,
   Brush,
   Settings,
-  Logout,
 } from "@mui/icons-material";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/authContex";
+import { authService } from "../services/authService";
 
 const drawerWidth = 240;
 
@@ -43,6 +42,7 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
   
   // Get initials for avatar
   const getInitials = (name: string) => {
@@ -50,14 +50,34 @@ const Sidebar = () => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/");
-    } catch (error) {
-      console.error("Logout failed:", error);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await authService.getMe();
+        setProfile(res.data);
+      } catch (err) {
+        console.error('Error fetching profile for sidebar', err);
+      }
+    };
+
+    if (user) {
+      fetchProfile();
     }
-  };
+  }, [user]);
+
+  // Use the event listener to catch profile updates across the app (optional, but nice)
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+       if (user) {
+         authService.getMe().then(res => setProfile(res.data)).catch(() => {});
+       }
+    };
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+  }, [user]);
+
+  const displayAvatar = profile?.avatar;
+  const displayName = profile?.fullName || user?.username || "ColabEase User";
 
   return (
     <Drawer
@@ -133,34 +153,57 @@ const Sidebar = () => {
         </List>
       </Box>
 
-      <Box sx={{ position: "absolute", bottom: 0, width: "100%", p: 2, borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Avatar sx={{ width: 36, height: 36, bgcolor: "#3B6D11", fontSize: "0.85rem" }}>
-            {user?.username ? getInitials(user.username) : "U"}
-          </Avatar>
-          <Box sx={{ ml: 1.5, flex: 1 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: "#1a2e0f", lineHeight: 1.2 }}>
-              {user?.username || "ColabEase User"}
-            </Typography>
-            <Typography variant="caption" sx={{ color: "#1a2e0f", opacity: 0.7, display: "block", mb: 0.2 }}>
-              {user?.email || "Team Member"}
-            </Typography>
-            <Typography 
-              variant="caption" 
-              onClick={handleLogout}
-              sx={{ 
-                color: "#d32f2f", 
-                cursor: "pointer", 
-                fontWeight: 700,
-                display: "inline-block",
-                transition: "opacity 0.2s",
-                "&:hover": { opacity: 0.7, textDecoration: "underline" }
-              }}
+      <Box sx={{ position: "absolute", bottom: 0, width: "100%", borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}>
+        <ListItemButton
+          component={Link}
+          to="/profile"
+          sx={{
+            py: 1.5,
+            px: 2,
+            transition: "all 0.2s ease",
+            "&:hover": {
+              backgroundColor: "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+            <Avatar 
+              src={displayAvatar || ""}
+              sx={{ width: 36, height: 36, bgcolor: "#3B6D11", fontSize: "0.85rem" }}
             >
-              Logout
-            </Typography>
+              {!displayAvatar && (user?.username ? getInitials(user.username) : "U")}
+            </Avatar>
+            <Box sx={{ ml: 1.5, flex: 1, overflow: "hidden" }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontWeight: 600, 
+                  color: "var(--text-color-light, #212529)", 
+                  lineHeight: 1.2,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis"
+                }}
+              >
+                {displayName}
+              </Typography>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  color: "var(--text-color-light, #212529)", 
+                  opacity: 0.7,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "block"
+                }}
+              >
+                {user?.email || "Team Member"}
+              </Typography>
+            </Box>
+
           </Box>
-        </Box>
+        </ListItemButton>
       </Box>
     </Drawer>
   );

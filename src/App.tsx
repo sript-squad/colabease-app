@@ -13,6 +13,7 @@ import Whiteboard from "./pages/Whiteboard";
 import ProjectsPage from "./components/ProjectsPage"; 
 import ProjectDetails from "./pages/ProjectDetails";
 import Landing from "./pages/Landing";
+import UserDetails from "./pages/UserDetails";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
                     <Route path="/documents" element={<Documents />} />
                     <Route path="/whiteboard" element={<Whiteboard />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/profile" element={<UserDetails />} />
                   </Routes>
                 </Box>
               </Box>
