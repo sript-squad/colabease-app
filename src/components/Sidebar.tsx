@@ -20,8 +20,10 @@ import {
   Brush,
   Settings,
 } from "@mui/icons-material";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/authContex";
+import { authService } from "../services/authService";
 
 const drawerWidth = 240;
 
@@ -40,6 +42,7 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
   
   // Get initials for avatar
   const getInitials = (name: string) => {
@@ -47,7 +50,34 @@ const Sidebar = () => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await authService.getMe();
+        setProfile(res.data);
+      } catch (err) {
+        console.error('Error fetching profile for sidebar', err);
+      }
+    };
 
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+
+  // Use the event listener to catch profile updates across the app (optional, but nice)
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+       if (user) {
+         authService.getMe().then(res => setProfile(res.data)).catch(() => {});
+       }
+    };
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+  }, [user]);
+
+  const displayAvatar = profile?.avatar;
+  const displayName = profile?.fullName || user?.username || "ColabEase User";
 
   return (
     <Drawer
@@ -137,8 +167,11 @@ const Sidebar = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "#3B6D11", fontSize: "0.85rem" }}>
-              {user?.username ? getInitials(user.username) : "U"}
+            <Avatar 
+              src={displayAvatar || ""}
+              sx={{ width: 36, height: 36, bgcolor: "#3B6D11", fontSize: "0.85rem" }}
+            >
+              {!displayAvatar && (user?.username ? getInitials(user.username) : "U")}
             </Avatar>
             <Box sx={{ ml: 1.5, flex: 1, overflow: "hidden" }}>
               <Typography 
@@ -152,7 +185,7 @@ const Sidebar = () => {
                   textOverflow: "ellipsis"
                 }}
               >
-                {user?.username || "ColabEase User"}
+                {displayName}
               </Typography>
               <Typography 
                 variant="caption" 
