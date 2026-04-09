@@ -9,6 +9,7 @@ import {
 import { Add, ArrowBack, PersonAdd } from '@mui/icons-material';
 import { projectService } from '../services/projectService';
 import { taskService } from '../services/taskService';
+import { authService } from '../services/authService';
 import { Project } from '../types/Project.types';
 import { Task, TaskStatus, TaskPriority } from '../types/Task.types';
 
@@ -72,7 +73,20 @@ export default function ProjectDetailsPage() {
 
   const handleAddMember = async () => {
     if (!id || !project || !newMember.trim()) return;
+    
+    // Validate email format basic check
+    if (!newMember.includes('@')) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
     try {
+      const response = await authService.checkUser(newMember.trim());
+      if (!response.data.exists) {
+        alert('User not found. Only registered users can be added as members.');
+        return;
+      }
+
       const updatedMembers = [...(project.members || []), newMember.trim()];
       await projectService.update(id, { members: updatedMembers });
       setIsMemberModalOpen(false);
@@ -80,6 +94,7 @@ export default function ProjectDetailsPage() {
       fetchProjectData();
     } catch (e) {
       console.error('Failed to add member', e);
+      alert('Failed to verify user. Please try again later.');
     }
   };
 
