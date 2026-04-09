@@ -9,6 +9,16 @@ import { documentService } from '../services/documentService';
 import { projectService } from '../services/projectService';
 import { Document, CreateDocumentDto } from '../types/Document.types';
 import { Project } from '../types/Project.types';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+
+// ── Helpers ─────────────────────────────────────────────────────────
+
+const stripHtml = (html: string) => {
+  const tmp = window.document.createElement('DIV');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || "";
+};
 
 // ── Components ──────────────────────────────────────────────────────
 
@@ -36,7 +46,10 @@ const DocumentCard = ({ doc, onClick, onDelete, onEdit, projectName }: {
     
     <div style={styles.cardBody}>
       <h3 style={styles.docTitle}>{doc.title}</h3>
-      <p style={styles.docSnippet}>{doc.content.substring(0, 80)}{doc.content.length > 80 ? '...' : ''}</p>
+      <p style={styles.docSnippet}>
+        {stripHtml(doc.content).substring(0, 80)}
+        {stripHtml(doc.content).length > 80 ? '...' : ''}
+      </p>
     </div>
 
     <div style={styles.cardFooter}>
@@ -240,13 +253,24 @@ export default function DocumentsPage() {
                 </select>
               </div>
               <div style={styles.inputGroup}>
-                <label style={styles.label}>Content (Markdown supported)</label>
-                <textarea 
-                  style={{...styles.input, height: 250, resize: 'none'}} 
-                  placeholder="Write your document content here..."
-                  value={formData.content}
-                  onChange={(e) => setFormData({...formData, content: e.target.value})}
-                />
+                <label style={styles.label}>Content</label>
+                <div style={styles.editorContainer}>
+                  <ReactQuill 
+                    theme="snow"
+                    value={formData.content}
+                    onChange={(content) => setFormData({...formData, content})}
+                    placeholder="Write your document content here..."
+                    modules={{
+                      toolbar: [
+                        [{ 'header': [1, 2, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{'list': 'ordered'}, {'list': 'bullet'}],
+                        ['link', 'clean']
+                      ],
+                    }}
+                    style={{ height: '200px' }}
+                  />
+                </div>
               </div>
             </div>
             <div style={styles.modalFooter}>
@@ -261,6 +285,29 @@ export default function DocumentsPage() {
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .ql-toolbar.ql-snow {
+          border-radius: 10px 10px 0 0 !important;
+          border: 1.5px solid #e0e8dc !important;
+          background: #f8faf7 !important;
+        }
+        
+        .ql-container.ql-snow {
+          border-radius: 0 0 10px 10px !important;
+          border: 1.5px solid #e0e8dc !important;
+          border-top: none !important;
+          font-family: inherit !important;
+          font-size: 14px !important;
+        }
+        
+        .ql-editor {
+          min-height: 200px !important;
+        }
+
+        .ql-editor.ql-blank::before {
+          color: #7a9e7a !important;
+          font-style: normal !important;
+        }
       `}</style>
     </div>
   );
