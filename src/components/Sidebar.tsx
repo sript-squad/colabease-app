@@ -32,11 +32,11 @@ const SIDEBAR_ITEMS = [
   { text: "Dashboard", path: "/dashboard", icon: Home },
   { text: "Projects", path: "/projects", icon: Folder },
   { text: "Chat", path: "/chat", icon: Chat, badge: 5 },
-  { text: "Files", path: "/files", icon: FileCopy },
-  { text: "Milestones", path: "/milestones", icon: Assessment },
+  // { text: "Files", path: "/files", icon: FileCopy },
+  // { text: "Milestones", path: "/milestones", icon: Assessment },
   { text: "Documents", path: "/documents", icon: Description },
-  { text: "Whiteboard", path: "/whiteboard", icon: Brush },
-  { text: "Settings", path: "/settings", icon: Settings },
+  // { text: "Whiteboard", path: "/whiteboard", icon: Brush },
+  // { text: "Settings", path: "/settings", icon: Settings },
 ];
 
 const Sidebar = () => {
