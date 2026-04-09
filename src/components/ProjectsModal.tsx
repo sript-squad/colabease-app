@@ -3,6 +3,8 @@ import { X, Loader2, FolderKanban, Sparkles, CheckSquare, Square } from 'lucide-
 import { projectService } from '../services/projectService';
 import { taskService } from '../services/taskService';
 import { aiService } from '../services/aiService';
+import { authService } from '../services/authService';
+import { useAuth } from '../auth/authContex';
 import { Project, ProjectStatus } from '../types/Project.types';
 
 interface SuggestedTask {
@@ -43,6 +45,7 @@ const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
 
 export default function ProjectModal({ project, onClose, onSaved }: ProjectModalProps) {
   const isEdit = !!project;
+  const { user } = useAuth();
   const [form, setForm]     = useState<FormState>(EMPTY);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors]   = useState<Partial<Record<keyof FormState | 'submit', string>>>({});
@@ -63,9 +66,9 @@ export default function ProjectModal({ project, onClose, onSaved }: ProjectModal
         ownerId:     project.ownerId ?? '',
       });
     } else {
-      setForm(EMPTY);
+      setForm({ ...EMPTY, ownerId: user?.email || '' });
     }
-  }, [project]);
+  }, [project, user]);
 
   const set = (field: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -75,7 +78,7 @@ export default function ProjectModal({ project, onClose, onSaved }: ProjectModal
   const validate = (): boolean => {
     const e: typeof errors = {};
     if (!form.name.trim())    e.name    = 'Project name is required';
-    if (!form.ownerId.trim()) e.ownerId = 'Owner ID is required';
+    if (!form.ownerId.trim()) e.ownerId = 'Owner email is required';
     if (form.endDate && form.startDate && form.endDate < form.startDate)
       e.endDate = 'End date must be after start date';
     setErrors(e);
@@ -102,17 +105,30 @@ export default function ProjectModal({ project, onClose, onSaved }: ProjectModal
 
   const handleSubmit = async () => {
     if (!validate()) return;
-    const payload = {
-      name:        form.name.trim(),
-      description: form.description.trim() || undefined,
-      status:      form.status,
-      ownerId:     form.ownerId.trim(),
-      startDate:   form.startDate || undefined,
-      endDate:     form.endDate   || undefined,
-      members:     form.members ? form.members.split(',').map((m) => m.trim()).filter(Boolean) : [],
-    };
+    
+    setLoading(true);
     try {
-      setLoading(true);
+      // Validate members before submitting
+      const memberEmails = form.members ? form.members.split(',').map((m) => m.trim()).filter(Boolean) : [];
+      for (const email of memberEmails) {
+        const check = await authService.checkUser(email);
+        if (!check.data.exists) {
+          setErrors({ submit: `User "${email}" not found. Only registered users can be added as members.` });
+          setLoading(false);
+          return;
+        }
+      }
+
+      const payload = {
+        name:        form.name.trim(),
+        description: form.description.trim() || undefined,
+        status:      form.status,
+        ownerId:     form.ownerId.trim(),
+        startDate:   form.startDate || undefined,
+        endDate:     form.endDate   || undefined,
+        members:     memberEmails,
+      };
+
       let createdProjectId = project?._id;
       
       if (isEdit) {
@@ -231,16 +247,25 @@ export default function ProjectModal({ project, onClose, onSaved }: ProjectModal
             </Field>
           </div>
 
-          <Field label="Members" hint="Comma-separated user IDs">
-            <input style={s.input} placeholder="user123, user456"
+          <Field label="Members" hint="Comma-separated emails">
+            <input style={s.input} placeholder="john@example.com, sara@example.com"
               value={form.members} onChange={(e) => set('members', e.target.value)} />
           </Field>
 
-          <Field label="Owner ID" required error={errors.ownerId}>
-            <input style={{ ...s.input, ...(errors.ownerId ? s.inputErr : {}) }}
-              placeholder="e.g. user123"
-              value={form.ownerId} onChange={(e) => set('ownerId', e.target.value)} />
-          </Field>
+          {!isEdit && (
+            <Field label="Project Owner" hint="Automatically set to your email">
+              <input style={{ ...s.input, background: '#f4f7f2', cursor: 'not-allowed' }}
+                value={form.ownerId} disabled />
+            </Field>
+          )}
+
+          {isEdit && (
+            <Field label="Project Owner" required error={errors.ownerId}>
+              <input style={{ ...s.input, ...(errors.ownerId ? s.inputErr : {}) }}
+                placeholder="owner@example.com"
+                value={form.ownerId} onChange={(e) => set('ownerId', e.target.value)} />
+            </Field>
+          )}
         </div>
 
         {/* Footer */}

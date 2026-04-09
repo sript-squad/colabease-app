@@ -7,6 +7,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useState } from "react";
+import { useAuth } from "../auth/authContex";
 
 interface CreateProjectData {
   name: string;
@@ -23,6 +24,7 @@ interface NewProjectProps {
 const NewProject = ({ open, onClose, onCreate }: NewProjectProps) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const { user } = useAuth();
 
   const handleCreate = () => {
     if (!name.trim()) {
@@ -30,10 +32,15 @@ const NewProject = ({ open, onClose, onCreate }: NewProjectProps) => {
       return;
     }
 
+    if (!user?.email) {
+      alert("You must be logged in to create a project");
+      return;
+    }
+
     const projectData: CreateProjectData = {
       name: name.trim(),
       description: description.trim() || undefined,
-      ownerId: "default-user", // This should come from user context/auth
+      ownerId: user.email,
     };
 
     onCreate(projectData);
