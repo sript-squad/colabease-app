@@ -12,14 +12,18 @@ import { taskService } from '../services/taskService';
 import { authService } from '../services/authService';
 import { Project } from '../types/Project.types';
 import { Task, TaskStatus, TaskPriority } from '../types/Task.types';
+import { useAuth } from '../auth/authContex';
 
 export default function ProjectDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const isOwner = project?.ownerId === user?.email;
 
   // Task Modal state
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -40,8 +44,12 @@ export default function ProjectDetailsPage() {
       ]);
       setProject(projectRes.data);
       setTasks(tasksRes.data);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      if (e.response?.status === 403 || e.response?.status === 401) {
+        alert('You do not have access to this project.');
+        navigate('/projects');
+      }
     } finally {
       setLoading(false);
     }
@@ -194,23 +202,25 @@ export default function ProjectDetailsPage() {
               </Avatar>
             ))}
           </AvatarGroup>
-          <Button 
-            variant="contained" 
-            size="medium" 
-            startIcon={<PersonAdd />}
-            sx={{ 
-              textTransform: 'none', 
-              background: '#3B6D11', 
-              color: '#fff',
-              boxShadow: '0 4px 12px rgba(59, 109, 17, 0.2)',
-              borderRadius: '10px',
-              px: 3,
-              '&:hover': { background: '#2d540d', boxShadow: '0 6px 16px rgba(59, 109, 17, 0.3)' } 
-            }}
-            onClick={() => setIsMemberModalOpen(true)}
-          >
-            Add Member
-          </Button>
+          {isOwner && (
+            <Button 
+              variant="contained" 
+              size="medium" 
+              startIcon={<PersonAdd />}
+              sx={{ 
+                textTransform: 'none', 
+                background: '#3B6D11', 
+                color: '#fff',
+                boxShadow: '0 4px 12px rgba(59, 109, 17, 0.2)',
+                borderRadius: '10px',
+                px: 3,
+                '&:hover': { background: '#2d540d', boxShadow: '0 6px 16px rgba(59, 109, 17, 0.3)' } 
+              }}
+              onClick={() => setIsMemberModalOpen(true)}
+            >
+              Add Member
+            </Button>
+          )}
         </Box>
       </Box>
 
