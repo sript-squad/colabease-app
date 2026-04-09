@@ -9,6 +9,8 @@ import {
   Typography,
   Box,
   Badge,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
   Home,
@@ -19,14 +21,15 @@ import {
   Description,
   Brush,
   Settings,
+  Logout,
 } from "@mui/icons-material";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/authContex";
 
 const drawerWidth = 240;
 
 const SIDEBAR_ITEMS = [
-  { text: "Dashboard", path: "/", icon: Home },
+  { text: "Dashboard", path: "/dashboard", icon: Home },
   { text: "Projects", path: "/projects", icon: Folder },
   { text: "Chat", path: "/chat", icon: Chat, badge: 5 },
   { text: "Files", path: "/files", icon: FileCopy },
@@ -38,11 +41,22 @@ const SIDEBAR_ITEMS = [
 
 const Sidebar = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   
   // Get initials for avatar
   const getInitials = (name: string) => {
+    if (!name) return "U";
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
@@ -54,9 +68,9 @@ const Sidebar = () => {
         [`& .MuiDrawer-paper`]: {
           width: drawerWidth,
           boxSizing: "border-box",
-          backgroundColor: "var(--accent-color)",
-          color: "var(--text-color)",
-          borderRight: "1px solid rgba(255, 255, 255, 0.05)",
+          backgroundColor: "#fff",
+          color: "#1a2e0f",
+          borderRight: "1px solid rgba(0, 0, 0, 0.05)",
         },
       }}
     >
@@ -64,11 +78,7 @@ const Sidebar = () => {
       <Box sx={{ overflow: "auto", mt: 2 }}>
         <List sx={{ px: 1 }}>
           {SIDEBAR_ITEMS.map((item) => {
-            const isActive = 
-              item.path === "/" 
-                ? location.pathname === "/" 
-                : location.pathname.startsWith(item.path);
-
+            const isActive = location.pathname.startsWith(item.path);
             const Icon = item.icon;
 
             return (
@@ -82,11 +92,10 @@ const Sidebar = () => {
                   position: "relative",
                   transition: "all 0.2s ease",
                   backgroundColor: isActive ? "rgba(59, 109, 17, 0.08)" : "transparent",
-                  color: isActive ? "#3B6D11" : "var(--text-color-light, #212529)",
+                  color: isActive ? "#3B6D11" : "#1a2e0f",
                   "&:hover": {
                     backgroundColor: "rgba(0, 0, 0, 0.04)",
                   },
-                  // Green accent border for active state
                   "&::before": isActive ? {
                     content: '""',
                     position: "absolute",
@@ -129,12 +138,26 @@ const Sidebar = () => {
           <Avatar sx={{ width: 36, height: 36, bgcolor: "#3B6D11", fontSize: "0.85rem" }}>
             {user?.username ? getInitials(user.username) : "U"}
           </Avatar>
-          <Box sx={{ ml: 1.5 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: "var(--text-color-light, #212529)", lineHeight: 1.2 }}>
+          <Box sx={{ ml: 1.5, flex: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: "#1a2e0f", lineHeight: 1.2 }}>
               {user?.username || "ColabEase User"}
             </Typography>
-            <Typography variant="caption" sx={{ color: "var(--text-color-light, #212529)", opacity: 0.7 }}>
+            <Typography variant="caption" sx={{ color: "#1a2e0f", opacity: 0.7, display: "block", mb: 0.2 }}>
               {user?.email || "Team Member"}
+            </Typography>
+            <Typography 
+              variant="caption" 
+              onClick={handleLogout}
+              sx={{ 
+                color: "#d32f2f", 
+                cursor: "pointer", 
+                fontWeight: 700,
+                display: "inline-block",
+                transition: "opacity 0.2s",
+                "&:hover": { opacity: 0.7, textDecoration: "underline" }
+              }}
+            >
+              Logout
             </Typography>
           </Box>
         </Box>
