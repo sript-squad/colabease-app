@@ -21,16 +21,23 @@ import {
   Settings,
 } from "@mui/icons-material";
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/authContex";
 import { authService } from "../services/authService";
 
 const drawerWidth = 240;
 
-const SIDEBAR_ITEMS = [
+interface SidebarItem {
+  text: string;
+  path: string;
+  icon: any;
+  badge?: number;
+}
+
+const SIDEBAR_ITEMS: SidebarItem[] = [
   { text: "Dashboard", path: "/dashboard", icon: Home },
   { text: "Projects", path: "/projects", icon: Folder },
-  { text: "Chat", path: "/chat", icon: Chat, badge: 5 },
+  { text: "Chat", path: "/chat", icon: Chat },
   // { text: "Files", path: "/files", icon: FileCopy },
   // { text: "Milestones", path: "/milestones", icon: Assessment },
   { text: "Documents", path: "/documents", icon: Description },
@@ -40,7 +47,6 @@ const SIDEBAR_ITEMS = [
 
 const Sidebar = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   
