@@ -30,7 +30,7 @@ const drawerWidth = 240;
 const SIDEBAR_ITEMS = [
   { text: "Dashboard", path: "/dashboard", icon: Home },
   { text: "Projects", path: "/projects", icon: Folder },
-  { text: "Chat", path: "/chat", icon: Chat, badge: 5 },
+  { text: "Chat", path: "/chat", icon: Chat },
   // { text: "Files", path: "/files", icon: FileCopy },
   // { text: "Milestones", path: "/milestones", icon: Assessment },
   { text: "Documents", path: "/documents", icon: Description },
