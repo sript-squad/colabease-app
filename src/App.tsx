@@ -5,15 +5,16 @@ import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Callback from "./pages/Callback";
 import Dashboard from "./pages/Dashboard";
-import { Chat, Settings } from "@mui/icons-material";
 import Documents from "./pages/Documents";
 import Files from "./pages/Files";
 import Milestones from "./pages/Milestones";
 import Whiteboard from "./pages/Whiteboard";
-import ProjectsPage from "./components/ProjectsPage"; 
+import ProjectsPage from "./components/ProjectsPage";
 import ProjectDetails from "./pages/ProjectDetails";
 import Landing from "./pages/Landing";
 import UserDetails from "./pages/UserDetails";
+import ChatPage from "./pages/Chat";  // ← updated import (was @mui/icons-material Chat)
+import Settings from "./pages/Settings"; // ← add this if it exists
 
 function App() {
   return (
@@ -32,13 +33,22 @@ function App() {
                 <CssBaseline />
                 <Header />
                 <Sidebar />
-                <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
+                <Box
+                  component="main"
+                  sx={{
+                    flexGrow: 1,
+                    bgcolor: "background.default",
+                    p: 3,
+                    // Give the chat page full height without extra padding
+                    "&:has(.chat-page-root)": { p: 0 },
+                  }}
+                >
                   <Toolbar />
                   <Routes>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/projects/:id" element={<ProjectDetails />} />
-                    <Route path="/chat" element={<Chat />} />
+                    <Route path="/chat" element={<ChatPage />} />
                     <Route path="/files" element={<Files />} />
                     <Route path="/milestones" element={<Milestones />} />
                     <Route path="/documents" element={<Documents />} />
