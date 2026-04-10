@@ -37,7 +37,7 @@ export function useChatSocket(options: UseChatSocketOptions) {
       }
 
       socket = io(`${SOCKET_URL}/chat`, {
-        auth: { token: `Bearer ${token}` },
+        auth: {token},
         transports: ['websocket'],
         reconnectionDelay: 2000,
         reconnectionAttempts: 10,
